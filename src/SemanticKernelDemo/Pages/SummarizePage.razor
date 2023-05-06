@@ -1,0 +1,33 @@
+﻿@page "/summarize"
+@inject SummaryService service
+<h1>Summarize Skill</h1>
+<form>
+  <div class="form-group">
+    <label for="text1">Enter Text</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Long Text Here" />
+  </div>
+    <div class="form-group">
+        <label for="text2">Summarize</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Summarize" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+       
+    </div>
+}
+@code {
+    public string Input { get; set; }
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.Summarize(Input);
+    }
+}

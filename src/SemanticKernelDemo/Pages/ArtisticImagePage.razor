@@ -1,0 +1,76 @@
+﻿@page "/ArtisticImage"
+@using CommunityToolkit.Maui.Core;
+@using CommunityToolkit.Maui.Storage;
+@inject ArtisticImageService service
+@inject IFileSaver fileSaver
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<h1>Artistic Image Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Topic</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter topic Here" />
+    </div>
+   
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    @if (!string.IsNullOrEmpty(ImageUrl))
+    {
+        <button type="button" @onclick="Download" class="btn btn-primary mt-2">Download</button>
+    }
+  
+</form>
+<p>Generated Image Desc</p>
+ <div class="row mt-2">
+     <div class="row-12">
+        <textarea type="text" @bind="ImageDesc" rows="5" class="form-control" id="text3" readonly placeholder="Generated Image Desc" />
+     </div>
+</div> 
+<div class="row mt-2">
+     <div class="row-12">
+        @if (!string.IsNullOrEmpty(ImageUrl))
+        {
+            <img src="@ImageUrl" alt="generated dal-e" />
+        }
+     </div>
+</div>
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    List<ToastMessage> messages = new List<ToastMessage>();
+
+    HttpClient client = new();
+    public string Input { get; set; }
+    public string ImageDesc { get; set; }
+    public string ImageUrl { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        Input = "Love of Mother";
+    }
+    private async Task Process()
+    {
+        ImageDesc = await service.GeneratePoem(Input);
+        ImageUrl = await service.GenerateArtisticImage(ImageDesc);
+    }
+
+
+    public async void Download()
+    {
+        var bytes = await client.GetByteArrayAsync(ImageUrl);
+        var cts = new CancellationTokenSource();
+        using var stream = new MemoryStream(bytes);
+        var fileSaverResult = await fileSaver.SaveAsync("artistic-image.png", stream, cts.Token);
+        fileSaverResult.EnsureSuccess();
+
+        cts = new CancellationTokenSource();
+        //var toast = CommunityToolkit.Maui.Alerts.Toast.Make($"File is saved: {fileSaverResult.FilePath}", duration, fontSize);
+        var toast = new ToastMessage
+            {
+                Type =  ToastType.Success,
+                Message = $"File is saved: {fileSaverResult.FilePath}",
+            };
+        messages.Add(toast);
+    }
+}
