@@ -1,0 +1,38 @@
+﻿@page "/sentiment"
+@inject SentimentService service
+<h1>Sentiment Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Sentences, split by ';'</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Sentence Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Sentiments</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Sentiments" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string Input { get; set; } = "I like to help people; I hate foreigner; I believe these movie has porn content.";
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        var inputs = Input.Split(';');
+        var res = await service.GetSentiments(inputs);
+        Result = string.Empty;
+        foreach(var sentiment in res)
+        {
+            Result += sentiment+Environment.NewLine;
+        }
+    }
+}

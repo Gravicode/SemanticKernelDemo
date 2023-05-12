@@ -30,6 +30,9 @@ public static class MauiProgram
 	
 		builder.Services.AddSingleton<SummaryService>();
 		builder.Services.AddSingleton<ArtisticImageService>();
+		builder.Services.AddSingleton<QnAService>();
+		builder.Services.AddSingleton<SentimentService>();
+		builder.Services.AddSingleton<TranslateProgramService>();
 			
 
         builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);

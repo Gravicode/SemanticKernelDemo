@@ -1,0 +1,110 @@
+﻿@page "/qna"
+@inject QnAService service
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+<h1>QnA Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Context or System Message</label>
+        <textarea type="text" @bind="Context" rows="5" class="form-control" id="text1" placeholder="Enter Context Here" />
+    </div>
+    
+    <button type="button" @onclick="Reset" disabled="@service.IsProcessing" class="btn btn-success mt-2">Reset</button>
+</form>
+
+<div class="padding">
+    <div class="row container d-flex justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-bordered">
+                <div class="card-header">
+                    <h4 class="card-title"><strong>Chat</strong></h4>
+                    <a class="btn btn-xs btn-secondary" href="" @onclick:preventDefault data-abc="true">Let's Chat App</a>
+                </div>
+
+
+                <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
+                   
+                    @foreach(var item in Interactions)
+                    {
+                        <div class="media media-chat">
+                            <img class="avatar" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
+                            <div class="media-body">
+                                <p>@item.UserMessage</p>
+                                <p class="meta"><time datetime="2018">@item.CreatedDate.ToString("HH:mm")</time></p>
+                            </div>
+                        </div>
+
+                        <div class="media media-chat media-chat-reverse">
+                            <div class="media-body">
+                                <p>@item.AssistantMessage</p>
+                                <p class="meta"><time datetime="2018">@item.CreatedDate.ToString("HH:mm")</time></p>
+                            </div>
+                        </div>
+                    }
+                   
+                    
+
+                    <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 0px;"><div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps-scrollbar-y-rail" style="top: 0px; height: 0px; right: 2px;"><div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 2px;"></div></div>
+                </div>
+
+                <div class="publisher bt-1 border-light">
+                    <img class="avatar avatar-xs" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
+                    <input class="publisher-input" type="text" @onkeydown="@Enter" @bind:event="oninput" @bind="Input" placeholder="Write something">
+                    <span class="publisher-btn file-group">
+                        <i class="fa fa-paperclip file-browser"></i>
+                        <input type="file">
+                    </span>
+                    <a class="publisher-btn" href="#" data-abc="true"><i class="fa fa-smile"></i></a>
+                    <a class="publisher-btn text-info" href="#" @onclick:preventDefault @onclick="Process" disabled="@service.IsProcessing" data-abc="true"><i class="fa fa-paper-plane"></i></a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    string Context = "You are an intelligent cute girly assistant. you answer all questions with funny way. you always think positive and polite.";
+    public string Input { get; set; }
+    public string Result { get; set; }
+    List<ToastMessage> messages = new List<ToastMessage>();
+    List<ChatInteraction> Interactions = new List<ChatInteraction>();
+    async Task Reset()
+    {
+        if (string.IsNullOrEmpty(Context))
+        {
+            var toast = new ToastMessage
+                {
+                    Type = ToastType.Warning,
+                    Message = $"Please define context first.",
+                };
+            messages.Add(toast);
+            return;
+        }
+        Interactions.Clear();
+        service.SetupSkill(Context);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        service.SetupSkill(Context);
+    }
+    public async Task Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            await Process();
+        }
+    }
+    private async Task Process()
+    {
+        Result = await service.Chat(Input);
+        Interactions.Add(new ChatInteraction() { CreatedDate = DateTime.Now, UserMessage = Input, AssistantMessage = Result });
+        Input = string.Empty;
+    }
+
+
+}

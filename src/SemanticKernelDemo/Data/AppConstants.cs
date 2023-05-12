@@ -9,8 +9,8 @@ namespace SemanticKernelDemo.Data
     public class AppConstants
     {
         //var (useAzureOpenAI, model, azureEndpoint, apiKey, orgId) = Settings.LoadFromFile();
-        public static string OpenAIApiKey = "-- Open AI Key --";
-        public static string OrgID = "-- ORG ID --";
+        public static string OpenAIApiKey = "";//"-- Open AI Key --";
+        public static string OrgID = "";//"-- ORG ID --";
         public static string Model = "text-davinci-003";
         public static string Type = "openai";
         public static (string model, string apiKey, string orgId) GetSettings()
