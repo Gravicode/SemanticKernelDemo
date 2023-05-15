@@ -33,6 +33,9 @@ public static class MauiProgram
 		builder.Services.AddSingleton<QnAService>();
 		builder.Services.AddSingleton<SentimentService>();
 		builder.Services.AddSingleton<TranslateProgramService>();
+		builder.Services.AddSingleton<TranslatorService>();
+		builder.Services.AddSingleton<GrammarCorrectionService>();
+		builder.Services.AddSingleton<QuizCreatorService>();
 			
 
         builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);

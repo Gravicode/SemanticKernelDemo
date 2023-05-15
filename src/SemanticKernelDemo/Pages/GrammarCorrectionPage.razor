@@ -1,0 +1,139 @@
+﻿@page "/Grammar-Correction"
+@inject GrammarCorrectionService service
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<h1>Grammar Correction Skill</h1>
+<form>
+    <div class="form-group">
+
+        <div class="form-group">
+            <label for="to1">Language</label>
+            <select class="form-control" @bind="toLang" id="to1">
+                @foreach (var lang in Langs)
+                {
+                    <option value="@lang.Key">@lang.Key,@lang.Value</option>
+                }
+            </select>
+        </div>
+        <label for="text1">Enter Text</label>
+        <textarea type="text" @bind="Input" rows="8" class="form-control" id="text1" placeholder="Enter Text Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Grammar Correction Result</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Correction Text" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    Dictionary<string, string> Langs = new Dictionary<string, string>()
+
+    {
+{"Albanian","Albania"                 },
+{"Arabic","Arab World"                },
+{"Armenian","Armenia"                 },
+{"Awadhi","India"                     },
+{"Azerbaijani","Azerbaijan"           },
+{"Bashkir","Russia"                   },
+{"Basque","Spain"                     },
+{"Belarusian","Belarus"               },
+{"Bengali","Bangladesh"               },
+{"Bhojpuri","India"                   },
+{"Bosnian","Bosnia and Herzegovina"   },
+{"Brazilian Portuguese","Brazil"      },
+{"Bulgarian","Bulgaria"               },
+{"Cantonese (Yue)","China"            },
+{"Catalan","Spain"                    },
+{"Chhattisgarhi","India"              },
+{"Chinese","China"                    },
+{"Croatian","Croatia"                 },
+{"Czech","Czech Republic"             },
+{"Danish","Denmark"                   },
+{"Dogri","India"                      },
+{"Dutch","Netherlands"                },
+{"English","United Kingdom"           },
+{"Estonian","Estonia"                 },
+{"Faroese","Faroe Islands"            },
+{"Finnish","Finland"                  },
+{"French","France"                    },
+{"Galician","Spain"                   },
+{"Georgian","Georgia"                 },
+{"German","Germany"                   },
+{"Greek","Greece"                     },
+{"Gujarati","India"                   },
+{"Haryanvi","India"                   },
+{"Hindi","India"                      },
+{"Hungarian","Hungary"                },
+{"Indonesian","Indonesia"             },
+{"Irish","Ireland"                    },
+{"Italian","Italy"                    },
+{"Japanese","Japan"                   },
+{"Javanese","Indonesia"               },
+{"Kannada","India"                    },
+{"Kashmiri","India"                   },
+{"Kazakh","Kazakhstan"                },
+{"Konkani","India"                    },
+{"Korean","South Korea"               },
+{"Kyrgyz","Kyrgyzstan"                },
+{"Latvian","Latvia"                   },
+{"Lithuanian","Lithuania"             },
+{"Macedonian","North Macedonia"       },
+{"Maithili","India"                   },
+{"Malay","Malaysia"                   },
+{"Maltese","Malta"                    },
+{"Mandarin","China"                   },
+{"Mandarin Chinese","China"           },
+{"Marathi","India"                    },
+{"Marwari","India"                    },
+{"Min Nan","China"                    },
+{"Moldovan","Moldova"                 },
+{"Mongolian","Mongolia"               },
+{"Montenegrin","Montenegro"           },
+{"Nepali","Nepal"                     },
+{"Norwegian","Norway"                 },
+{"Oriya","India"                      },
+{"Pashto","Afghanistan"               },
+{"Persian (Farsi)","Iran"             },
+{"Polish","Poland"                    },
+{"Portuguese","Portugal"              },
+{"Punjabi","India"                    },
+{"Rajasthani","India"                 },
+{"Romanian","Romania"                 },
+{"Russian","Russia"                   },
+{"Sanskrit","India"                   },
+{"Santali","India"                    },
+{"Serbian","Serbia"                   },
+{"Sindhi","Pakistan"                  },
+{"Sinhala","Sri Lanka"                },
+{"Slovak","Slovakia"                  },
+{"Slovene","Slovenia"                 },
+{"Slovenian","Slovenia"               },
+{"Ukrainian","Ukraine"                },
+{"Urdu","Pakistan"                    },
+{"Uzbek","Uzbekistan"                 },
+{"Vietnamese","Vietnam"               },
+{"Welsh","Wales"                      },
+{"Wu","China"                         }
+    };
+    List<ToastMessage> messages = new List<ToastMessage>();
+    string toLang;
+    public string Input { get; set; }
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        toLang = Langs.First().Key;
+
+        Input = @" She no went to the school.";
+    }
+    private async Task Process()
+    {
+
+        Result = await service.CorrectGrammar(toLang, Input);
+
+    }
+}

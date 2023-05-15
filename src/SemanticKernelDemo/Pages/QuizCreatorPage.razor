@@ -1,0 +1,58 @@
+﻿@page "/Quiz-Creator"
+@inject QuizCreatorService service
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<h1>Quiz Creator Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Content</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Long Text Here" />
+    </div>
+    <div class="form-group">
+        <label for="text3">Number of Question</label>
+        <input type="number" @bind="Number" class="form-control" id="text3" placeholder="Enter number of questions" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Generate QnA</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Questions and Answers" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    List<ToastMessage> messages = new List<ToastMessage>();
+    int Number = 5;
+    public string Input { get; set; } = @"Negara Kesatuan Republik Indonesia, adalah negara kepulauan di Asia Tenggara yang dilintasi garis khatulistiwa dan berada di antara daratan benua Asia dan Oseania, sehingga dikenal sebagai negara lintas benua, serta antara Samudra Pasifik dan Samudra Hindia.
+
+Indonesia merupakan negara terluas ke-14 sekaligus negara kepulauan terbesar di dunia dengan luas wilayah sebesar 1.904.570 km²,[16] serta negara dengan pulau terbanyak ke-6 di dunia, dengan jumlah 17.504 pulau.[17] Nama alternatif yang dipakai untuk kepulauan Indonesia disebut Nusantara.[18] Selain itu, Indonesia juga menjadi negara berpenduduk terbanyak ke-4 di dunia dengan penduduk mencapai 277,749,853 jiwa pada tahun 2022,[19] serta negara dengan penduduk beragama Islam terbanyak di dunia, dengan penganut lebih dari 238,875,159 jiwa atau sekitar 86,9%.[20][21] Indonesia adalah negara multiras, multietnis, dan multikultural di dunia, seperti halnya Amerika Serikat.[22]
+
+Indonesia berbatasan dengan sejumlah negara di Asia Tenggara dan Oseania. Indonesia berbatasan di wilayah darat dengan Malaysia di Pulau Kalimantan dan Sebatik, dengan Papua Nugini di Pulau Papua, dan dengan Timor Leste di Pulau Timor. Negara yang hanya berbatasan laut dengan Indonesia adalah Singapura, Filipina, Australia, Thailand, Vietnam, Palau dan wilayah persatuan Kepulauan Andaman dan Nikobar, India.
+
+Indonesia adalah negara kesatuan dengan bentuk pemerintahan republik berdasarkan konstitusi yang sah, yaitu Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 (UUD 1945).[23] Berdasarkan UUD 1945 pula, Dewan Perwakilan Rakyat (DPR), Dewan Perwakilan Daerah (DPD), dan Presiden dicalonkan lalu dipilih dalam pemilihan umum.
+
+Ibu kota Indonesia saat ini adalah Jakarta. Pada tanggal 18 Januari 2022, pemerintah Indonesia menetapkan Ibu Kota Nusantara yang berada di Pulau Kalimantan, yang menempati wilayah Kabupaten Penajam Paser Utara, untuk menggantikan Jakarta sebagai ibu kota yang baru.[24] Hingga tahun 2022, proses peralihan ibu kota masih berlangsung.
+
+Sejarah Indonesia banyak dipengaruhi oleh bangsa-bangsa pendatang dan penjajah. Kepulauan Indonesia menjadi wilayah perdagangan penting sejak abad ke-7, yaitu sejak berdirinya Sriwijaya, kerajaan bercorak Hinduisme-Buddhisme yang berpusat di Palembang. Kerajaan Sriwijaya menjalin hubungan agama dan perdagangan dengan bangsa Tionghoa, India, dan juga Arab. Agama dan kebudayaan Hinduisme-Buddhisme tumbuh, berkembang, dan berasimilasi di kepulauan Indonesia pada awal abad ke-4 hingga abad ke-13 Masehi. Setelah itu, para pedagang dan ulama dari Jazirah Arab yang membawa agama dan kebudayaan Islam sekitar abad ke-8 hingga abad ke-16. Pada akhir abad ke-15, bangsa-bangsa Eropa datang ke kepulauan Indonesia dan berperang untuk memonopoli perdagangan rempah-rempah di Maluku semasa Zaman Penjelajahan. Setelah berada di bawah kolonial Belanda, Indonesia yang saat itu bernama Hindia Belanda, memproklamasikan kemerdekaan di akhir Perang Dunia II, tepatnya pada tanggal 17 Agustus 1945. Selanjutnya, Indonesia mendapat berbagai tantangan dan persoalan berat, mulai dari bencana alam, praktik korupsi yang masif, konflik sosial, gerakan separatisme, proses demokratisasi, dan periode pembangunan, perubahan dan perkembangan sosial–ekonomi–politik, serta modernisasi yang pesat.
+
+Indonesia terdiri dari berbagai suku bangsa, bahasa, dan agama. Berdasarkan rumpun bangsa, Indonesia terdiri atas bangsa asli pribumi yakni Austronesia dan Melanesia di mana bangsa Austronesia yang terbesar jumlahnya dan lebih banyak mendiami Indonesia bagian barat. Dengan suku Jawa dan Sunda membentuk kelompok suku bangsa terbesar dengan persentase mencapai 57% dari seluruh penduduk Indonesia.[25] Semboyan nasional Indonesia, ""Bhinneka Tunggal Ika"" (Berbeda-beda tetapi tetap satu), bermakna keberagaman sosial-budaya yang membentuk satu kesatuan negara. Selain memiliki penduduk yang padat dan wilayah yang luas, Indonesia memiliki alam yang mendukung tingkat keanekaragaman hayati terbesar ke-2 di dunia.";
+
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        if (Number < 1)
+        {
+            messages.Add(new ToastMessage() { Message= "Number of question must greater than 0", Title="Warning" } );
+            return;
+        }
+        Result = await service.CreateQuiz(Input,Number);
+    }
+}
