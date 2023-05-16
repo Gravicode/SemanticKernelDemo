@@ -32,6 +32,7 @@
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
 </form>
 
+
 @if (service.IsProcessing)
 {
     <div class="spinner-border mt-2" role="status">

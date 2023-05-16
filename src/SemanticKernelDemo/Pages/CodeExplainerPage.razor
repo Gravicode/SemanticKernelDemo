@@ -1,0 +1,57 @@
+﻿@page "/code-explainer"
+@inject CodeExplainerService service
+<h1>Code Explainer Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Code Here</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Code Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Code Explanation</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Code Explanation" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string Input { get; set; } = @"var learning_rate = 0.01f;
+var model = new Trivial();
+var loss = nn.MSELoss();
+
+var data = Enumerable.Range(0,16).Select(_ => rand(32,1000)).ToList<torch.Tensor>();  // Our pretend input data
+var results = Enumerable.Range(0,16).Select(_ => rand(32,10)).ToList<torch.Tensor>();  // Our pretend ground truth.
+
+var optimizer = torch.optim.SGD(model.parameters(), learning_rate);
+
+for (int i = 0; i < 300; i++) {
+
+    for (int idx = 0; i < data.Count; i++) {
+        // Compute the loss
+        using var output = loss.forward(model.forward(data[idx]), results[idx]);
+
+        // Clear the gradients before doing the back-propagation
+        model.zero_grad();
+
+        // Do back-progatation, which computes all the gradients.
+        output.backward();
+
+        optimizer.step();
+    }
+}
+
+loss.forward(model.forward(data[0]), results[0]).item<float>();";
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.Explain(Input);
+    }
+}

@@ -1,0 +1,52 @@
+﻿@page "/Data-Generator"
+@inject DataGeneratorService service
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<h1>Data Generator Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">What kind of data do you want to create</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Explain your data and columns" />
+    </div>
+    <div class="form-group">
+        <label for="text3">Number of Data Rows</label>
+        <input type="number" @bind="Number" class="form-control" id="text3" placeholder="Number of Data Rows" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Generated HTML Data Table</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Generated HTML Data Table" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2 mb-2">Process</button>
+</form>
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@if (!string.IsNullOrEmpty(Result))
+{
+    <div class="row">
+        <div class="col-12 col-lg-12">
+            @((MarkupString)Result)
+        </div>
+    </div>
+}
+@code {
+    List<ToastMessage> messages = new List<ToastMessage>();
+    int Number = 10;
+    public string Input { get; set; } = "Generate random car data with columns (car_name, car_type, year, origin, weight, cyclinder_number, horse_power)";
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        if (Number < 1 || Number > 1000)
+        {
+            messages.Add(new ToastMessage() { Title = "Warning", Message = "Data number range 1 - 1000" });
+            return;
+        }
+        Result = await service.GenerateData(Input,Number);
+    }
+}
