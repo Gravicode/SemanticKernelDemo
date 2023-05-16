@@ -60,19 +60,19 @@ result:
   </thead>
   <tbody>
     <tr>
-      <th scope="row">1</th>
+      <th scope="row">1234</th>
       <td>Mark</td>
       <td>Class A</td>
       <td>6</td>
     </tr>
     <tr>
-      <th scope="row">2</th>
+      <th scope="row">6576</th>
       <td>Jacob</td>
       <td>Class B</td>
       <td>7</td>
     </tr>
     <tr>
-      <th scope="row">3</th>
+      <th scope="row">7657</th>
       <td>Larry</td>
       <td>Class C</td>
       <td>8</td>
