@@ -1,0 +1,92 @@
+﻿@page "/Product-Name-Logo"
+@using CommunityToolkit.Maui.Storage;
+@inject ProductNameLogoService service
+@inject IFileSaver fileSaver
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<h1>Product Name Logo Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Product Desc</label>
+        <textarea type="text" @bind="Desc" rows="5" class="form-control" id="text1" placeholder="Enter Product Desc Here" />
+    </div>
+    <div class="form-group">
+        <label for="text3">Enter Seed Word (Feature of the products)</label>
+        <textarea type="text" @bind="Seed" rows="5" class="form-control" id="text3" placeholder="Enter Feature Here" />
+    </div>
+    <div class="form-group">
+        <label for="text4">Enter Number of Product Names/Logos</label>
+        <input type="number" @bind="Number" class="form-control" id="text4" placeholder="Enter Number of Names" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2 mb-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+
+@if(Result!=null && Result.Count > 0)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">No</th>
+                <th scope="col">Name</th>
+                <th scope="col">Logo</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var count = 1;
+            }
+            @foreach(var item in Result){
+            <tr>
+                <th scope="row">@(count++)</th>
+                <td>@item.ProductName</td>
+                <td><img width="100" src="@item.ProductLogoUrl" alt="logo" /></td>
+                <td>
+                    <Button Class="btn-outline-primary" @onclick="()=>Download(item)">Download</Button>
+                </td>
+            </tr>
+            }
+          
+        </tbody>
+    </table>
+}
+
+@code {
+    List<ToastMessage> messages = new List<ToastMessage>();
+    public string Desc { get; set; } = "modern sport shoes";
+    public string Seed { get; set; } = "energic, youth, sophicticated, booster";
+    public int Number { get; set; } = 5;
+    public List<ProductInfo> Result { get; set; } = new();
+    HttpClient client = new();
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    public async void Download(ProductInfo item)
+    {
+        var bytes = await client.GetByteArrayAsync(item.ProductLogoUrl);
+        var cts = new CancellationTokenSource();
+        using var stream = new MemoryStream(bytes);
+        var fileSaverResult = await fileSaver.SaveAsync("logo.png", stream, cts.Token);
+        fileSaverResult.EnsureSuccess();
+
+        cts = new CancellationTokenSource();
+        //var toast = CommunityToolkit.Maui.Alerts.Toast.Make($"File is saved: {fileSaverResult.FilePath}", duration, fontSize);
+        var toast = new ToastMessage
+            {
+                Type = ToastType.Success,
+                Message = $"File is saved: {fileSaverResult.FilePath}",
+            };
+        messages.Add(toast);
+    }
+    private async Task Process()
+    {
+        Result = await service.GenerateNameAndLogo(Desc,Seed,Number);
+    }
+}

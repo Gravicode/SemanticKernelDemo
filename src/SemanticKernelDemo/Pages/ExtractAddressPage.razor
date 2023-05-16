@@ -1,0 +1,32 @@
+﻿@page "/Extract-Address"
+@inject ExtractAddressService service
+<h1>Extract Address Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Address</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Address Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Extracted Address</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Extracted Address as JSON" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string Input { get; set; } = @"Jl. Jenderal Sudirman No.Kav. 52-53, RT.5/RW.3, Senayan, Kec. Kby. Baru, Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12190";
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.ExtractAddress(Input);
+    }
+}

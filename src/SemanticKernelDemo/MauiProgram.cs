@@ -39,6 +39,9 @@ public static class MauiProgram
 		builder.Services.AddSingleton<CodeExplainerService>();
 		builder.Services.AddSingleton<ExtractKeywordService>();
 		builder.Services.AddSingleton<DataGeneratorService>();
+		builder.Services.AddSingleton<ExtractAddressService>();
+		builder.Services.AddSingleton<ProductNameLogoService>();
+		builder.Services.AddSingleton<CSharpCommentService>();
 			
 
         builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);
