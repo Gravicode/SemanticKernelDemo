@@ -1,0 +1,40 @@
+﻿@page "/Sql-Generator"
+@inject SqlGeneratorService service
+<h1>Sql Generator Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text3">Table list with properties</label>
+        <textarea type="text" @bind="Tables" rows="5" class="form-control" id="text3" placeholder="Enter List of Tables Here" />
+    </div>
+    <div class="form-group">
+        <label for="text1">What query do you want to generate</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Command Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Generated SQL Query</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Generated Query" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string Tables { get; set; } = @"Ticket(id, user_id, opened_at, closed_at)
+User(id, name, address, company id)
+Company(id, name, address)
+Purchase(id, company id, time, amount)";
+    public string Input { get; set; } = @"list companies whose average ticket close time is greater than 24 hours ordered by the company with the greatest response time. For those same companies, please also include the total amount of purchases they have spent in the past month if their total purchase amount is at least one standard deviation above that of the average purchase amount across all companies.";
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.GenerateSQL(Tables,Input);
+    }
+}

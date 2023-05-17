@@ -1,0 +1,50 @@
+﻿@page "/Query-Explainer"
+@inject QueryExplainerService service
+<h1>Query Explainer Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter SQL Query Here</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Query Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Query Explanation</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Query Explanation" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+        <div class="spinner-border mt-2" role="status">
+        </div>
+}
+@code {
+    public string Input { get; set; } = @"WITH employee_ranking AS (
+  SELECT
+    employee_id,
+    last_name,
+    first_name,
+    salary,
+    dept_id
+    RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) as ranking
+  FROM employee
+)
+SELECT
+  dept_id,
+  employee_id,
+  last_name,
+  first_name,
+  salary
+FROM employee_ranking
+WHERE ranking = 2
+ORDER BY dept_id, last_name";
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.Explain(Input);
+    }
+}
