@@ -45,6 +45,9 @@ public static class MauiProgram
 		builder.Services.AddSingleton<SqlGeneratorService>();
 		builder.Services.AddSingleton<QueryExplainerService>();
 		builder.Services.AddSingleton<MeetingNotesService>();
+		builder.Services.AddSingleton<BugFixService>();
+		builder.Services.AddSingleton<WriterHelperService>();
+		builder.Services.AddSingleton<RecipeService>();
 			
 
         builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);

@@ -1,0 +1,68 @@
+﻿@page "/bug-fix"
+@inject BugFixService service
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<h1>Bug Fix Skill</h1>
+<form>
+    <div class="form-group">
+        <div class="form-group">
+            <label for="from1">Language</label>
+            <select class="form-control" @bind="Lang" id="from1">
+                @foreach (var lang in Langs)
+                {
+                    <option value="@lang">@lang</option>
+                }
+            </select>
+        </div>
+        
+        <label for="text1">Enter Code</label>
+        <textarea type="text" @bind="Input" rows="8" class="form-control" id="text1" placeholder="Enter Code Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Fixed Code</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Fixed Code" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    List<string> Langs = new List<string>()
+
+    {
+"Python",
+"JavaScript",
+"C++",
+"C#",
+"Java",
+"Ruby",
+"PHP",
+"Go",
+"Swift",
+"TypeScript",
+"SQL",
+"Shell"
+    };
+    List<ToastMessage> messages = new List<ToastMessage>();
+    string Lang = "C#";
+    public string Input { get; set; }
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        //Lang = Langs[0];
+        Input = @"public int AddTwoNumbers(int num1, int num2)
+{
+    int result = num1 * num2;
+}";
+    }
+    private async Task Process()
+    {
+        Result = await service.FixBug(Lang, Input);
+
+    }
+}

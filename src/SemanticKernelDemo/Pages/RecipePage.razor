@@ -1,0 +1,32 @@
+﻿@page "/Recipe"
+@inject RecipeService service
+<h1>Recipe Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">What do you want to eat</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Food/Drink Name" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Recipe</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Recipe" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string Input { get; set; } = "Spicy Grilled Chicken";
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.GenerateRecipe(Input);
+    }
+}

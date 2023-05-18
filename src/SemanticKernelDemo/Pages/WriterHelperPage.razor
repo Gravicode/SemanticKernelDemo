@@ -1,0 +1,46 @@
+﻿@page "/writer-helper"
+@inject WriterHelperService service
+<h1>Writer Helper Skill</h1>
+<form>
+  <div class="form-group">
+    <label for="text1">Enter Book Topic</label>
+        <textarea type="text" @bind="Topic" rows="5" class="form-control" id="text1" placeholder="Enter Book Topic Here" />
+  </div>
+    <button type="button" @onclick="CreateOutline" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Create Outline</button>
+    <div class="form-group">
+        <label for="text2">Outline</label>
+        <textarea type="text" @bind="Outline" rows="5" class="form-control" id="text2" placeholder="Outline" />
+    </div>
+    <button type="button" @onclick="CreateContent" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Create Content</button>
+    <div class="form-group">
+        <label for="text3">Content</label>
+        <textarea type="text" @bind="Content" rows="5" class="form-control" id="text3" readonly placeholder="Generated Content" />
+    </div>
+</form>
+
+@if (service.IsProcessing)
+{
+        <div class="spinner-border mt-2" role="status">
+
+        </div>
+}
+@code {
+    public string Topic { get; set; } = "How to think like a Steve Jobs";
+    public string Outline { get; set; }
+    public string Content { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task CreateOutline()
+    {
+        Outline = await service.CreateOutline(Topic);
+    } 
+    private async Task CreateContent()
+    {
+        if(!string.IsNullOrEmpty(Outline))
+            Content = await service.GenerateContent(Outline);
+            
+
+    }
+}
