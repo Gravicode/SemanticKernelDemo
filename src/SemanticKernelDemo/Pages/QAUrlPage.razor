@@ -1,0 +1,55 @@
+﻿@page "/QAUrl"
+@inject QAUrlService service
+<h1>QA Url Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Page Url</label>
+        <input type="text" @bind="Url" class="form-control" id="text1" placeholder="Enter Page Url Here" />
+    </div>
+    <button type="button" @onclick="AddUrl" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Add Url</button>
+    <div class="form-group">
+        <label for="text3">Enter Question</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text3" placeholder="Enter Question Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">QAUrl</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="QAUrl" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+<div class="alert alert-success">
+    Page Index Count: <b>@service.ContentCount</b>
+</div>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+
+    </div>
+}
+@code {
+    public string Url { get; set; } = "https://kompas.com";
+    public string Input { get; set; }
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    HttpClient http;
+    async Task AddUrl()
+    {
+        if (!string.IsNullOrEmpty(Url))
+        {
+            if(http==null)
+                http = new HttpClient();
+            await service.AddPageUrl(http, Url, "//body");
+            Url = string.Empty;
+            return;
+        }
+    }
+    private async Task Process()
+    {
+        Result = await service.Answer(Input);
+    }
+}

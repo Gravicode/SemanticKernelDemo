@@ -48,8 +48,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<BugFixService>();
 		builder.Services.AddSingleton<WriterHelperService>();
 		builder.Services.AddSingleton<RecipeService>();
-			
-
+        builder.Services.AddSingleton<QAUrlService>();
         builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);
         return builder.Build();
 	}
