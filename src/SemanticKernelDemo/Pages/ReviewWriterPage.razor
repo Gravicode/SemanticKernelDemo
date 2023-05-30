@@ -1,0 +1,48 @@
+﻿@page "/Review-Writer"
+@inject ReviewWriterService service
+<h1>Review Writer Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="cmbobject">Select Object</label>
+        <select class="form-control" @bind="ObjectName" name="object-name" id="cmbobject">
+            <option value="Hotel">Hotel</option>
+            <option value="Restaurant">Restaurant</option>
+            <option value="Mall">Mall</option>
+            <option value="Game">Game</option>
+        </select>
+        
+    </div>
+    <div class="form-group">
+        <label for="text1">Enter Name</label>
+        <input type="text" @bind="Name" class="form-control" id="text1" placeholder="Enter Name of Object Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Enter Features</label>
+        <textarea type="text" @bind="Feature" rows="5" class="form-control" id="text2" placeholder="Enter Features Here separate by comma" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Review</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Review" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string ObjectName { get; set; } = "Hotel";
+    public string Name { get; set; } = "Hotel California";
+    public string Feature { get; set; } = "Comfort, Cheap, Exotic, Beautiful Interior, Clean";
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.CreateReview(Name,ObjectName,Feature);
+    }
+}

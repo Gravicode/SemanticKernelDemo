@@ -10,7 +10,6 @@ using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.Memory;
 using System.Xml;
 using HtmlAgilityPack;
-using static Android.Renderscripts.ScriptGroup;
 
 namespace SemanticKernelDemo.Services
 {
@@ -33,8 +32,10 @@ namespace SemanticKernelDemo.Services
 
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
-            
+            kernel.Config.AddOpenAITextEmbeddingGenerationService("embedding", "text-embedding-ada-002", apiKey, orgId);
             kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+           
+
             kernel.UseMemory(new VolatileMemoryStore());
             SetupSkill();
         }
@@ -87,14 +88,15 @@ Answer:
                 IsProcessing = true;
 
                 var results = await kernel.Memory.SearchAsync(COLLECTION, question, limit: 2).ToListAsync();
-                var variables = new ContextVariables(question)
-                {
-                    ["context"] = results.Any()
+               
+                var context = new ContextVariables();
+                var ctx = results.Any()
                         ? string.Join("\n", results.Select(r => r.Metadata.Text))
-                        : "No context found for this question."
-                };
+                        : "No context found for this question.";
+                context.Set("context", ctx);
+                context.Set("input", question);
 
-                var result = await kernel.RunAsync(variables, ListFunctions[FunctionName]);
+                var result = await kernel.RunAsync(context, ListFunctions[FunctionName]);
                 Result = result.Result;
                 
             }
@@ -127,6 +129,13 @@ Answer:
             ContentCount++;
         }
 
-
+        public async Task AddContent(string title, string content)
+        {
+            ContentCount++;
+            var url = "doc-" + ContentCount;
+           
+            await kernel.Memory.SaveInformationAsync(COLLECTION, content, url, title);
+            
+        }
     }
 }

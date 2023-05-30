@@ -1,0 +1,32 @@
+﻿@page "/Idea-Generator"
+@inject IdeaGeneratorService service
+<h1>Idea Generator Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Topic</label>
+        <textarea type="text" @bind="Topic" rows="5" class="form-control" id="text1" placeholder="Enter Topic Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Ideas</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Ideas" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string Topic { get; set; } = "creating creative business combining VR and AI";
+    public string Result { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.GenerateIdea(Topic);
+    }
+}

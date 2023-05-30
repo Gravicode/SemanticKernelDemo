@@ -6,14 +6,15 @@
         <label for="text1">Enter Page Url</label>
         <input type="text" @bind="Url" class="form-control" id="text1" placeholder="Enter Page Url Here" />
     </div>
+    <button type="button" @onclick="OpenDoc" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Add Pdf</button>
     <button type="button" @onclick="AddUrl" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Add Url</button>
     <div class="form-group">
         <label for="text3">Enter Question</label>
         <textarea type="text" @bind="Input" rows="5" class="form-control" id="text3" placeholder="Enter Question Here" />
     </div>
     <div class="form-group">
-        <label for="text2">QAUrl</label>
-        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="QAUrl" />
+        <label for="text2">Answer</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Answer" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
 </form>
@@ -29,7 +30,7 @@
     </div>
 }
 @code {
-    public string Url { get; set; } = "https://kompas.com";
+    public string Url { get; set; } = "https://id.wikipedia.org/wiki/Microsoft_Windows";
     public string Input { get; set; }
     public string Result { get; set; }
     protected override async Task OnInitializedAsync()
@@ -37,6 +38,35 @@
 
     }
     HttpClient http;
+    public async Task<FileResult> PickAndShow(PickOptions options)
+    {
+        try
+        {
+            var result = await FilePicker.Default.PickAsync(options);
+            if (result != null)
+            {
+                if (result.FileName.EndsWith("pdf", StringComparison.OrdinalIgnoreCase) )
+                {
+                    using var stream = await result.OpenReadAsync();
+                    //var image = ImageSource.FromStream(() => stream);
+                    var content = PdfHelper.GetTextFromPdf(stream);
+                    await service.AddContent(result.FileName, content);
+                }
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            // The user canceled or something went wrong
+        }
+
+        return null;
+    }
+    async Task OpenDoc()
+    {
+        await PickAndShow(new PickOptions() { FileTypes =FilePickerFileType.Pdf });
+    }
     async Task AddUrl()
     {
         if (!string.IsNullOrEmpty(Url))
