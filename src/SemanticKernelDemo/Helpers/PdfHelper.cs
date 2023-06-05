@@ -43,5 +43,20 @@ namespace SemanticKernelDemo.Helpers
             return sb.ToString();
 
         }
+        public static IEnumerable<string> GetTextPerPageFromPdf(Stream FilePdf)
+        {
+            PdfDocument doc = PdfReader.Open(FilePdf, PdfDocumentOpenMode.ReadOnly);
+
+            StringBuilder sb = new StringBuilder();
+            using (PdfSharpTextExtractor.Extractor extractor = new PdfSharpTextExtractor.Extractor(doc))
+            {
+                foreach (PdfPage page in doc.Pages)
+                {
+                    sb.Clear();
+                    extractor.ExtractText(page, sb);
+                    yield return sb.ToString();
+                }
+            }
+        }
     }
 }

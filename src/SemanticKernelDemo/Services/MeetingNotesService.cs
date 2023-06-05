@@ -13,7 +13,7 @@ namespace SemanticKernelDemo.Services
     public class MeetingNotesService
     {
         public string SkillName { get; set; } = "MeetingNotesSkill";
-        public string[] FunctionNames { set; get; } = new string[] { "Notes Summary", "Key Decisions", "Action Items" };
+        public string[] FunctionNames { set; get; } = new string[] { "NotesSummary", "KeyDecisions", "ActionItems" };
         int MaxTokens { set; get; }
         double Temperature { set; get; }
         double TopP { set; get; }
@@ -36,8 +36,12 @@ namespace SemanticKernelDemo.Services
         }
 
         public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.0, double FrequencyPenalty = 0.0f,
-    double PresencePenalty= 0.0f, double TopP = 1)
+    double PresencePenalty = 0.0f, double TopP = 1)
         {
+            try
+            {
+
+            
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
             this.TopP = TopP;
@@ -69,7 +73,7 @@ Summarize the meeting notes above.
 
             var MeetingNotesFunction = kernel.RegisterSemanticFunction(SkillName, FunctionNames[0], functionConfig);
             ListFunctions.Add(FunctionNames[0], MeetingNotesFunction);
-            
+
             skPrompt = """
 {{$input}}
 
@@ -101,6 +105,11 @@ What are the key action items in the transcript above.
             var functionConfig3 = new SemanticFunctionConfig(promptConfig, promptTemplate3);
             var MeetingNotesFunction3 = kernel.RegisterSemanticFunction(SkillName, FunctionNames[2], functionConfig3);
             ListFunctions.Add(FunctionNames[2], MeetingNotesFunction3);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
         public async Task<string> GetNotes(string input)
@@ -117,7 +126,7 @@ What are the key action items in the transcript above.
                     var MeetingNotes = await kernel.RunAsync(input, ListFunctions[FunctionName]);
 
                     Console.WriteLine(MeetingNotes);
-                    Result += $"[{FunctionName}]\n" + MeetingNotes.Result.Trim() +Environment.NewLine;
+                    Result += $"[{FunctionName}]\n" + MeetingNotes.Result.Trim() + Environment.NewLine;
                 }
             }
             catch (Exception ex)

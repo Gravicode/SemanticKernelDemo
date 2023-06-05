@@ -1,15 +1,12 @@
 ﻿using Microsoft.SemanticKernel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.Memory;
-using System.Xml;
 using HtmlAgilityPack;
+using CommunityToolkit.Maui.Core;
+using System.Threading;
+using CommunityToolkit.Maui.Alerts;
 
 namespace SemanticKernelDemo.Services
 {
@@ -23,7 +20,7 @@ namespace SemanticKernelDemo.Services
         public bool IsProcessing { get; set; } = false;
         const string COLLECTION = "PageCollection";
         Dictionary<string, ISKFunction> ListFunctions = new Dictionary<string, ISKFunction>();
-
+        HashSet<string> Ids = new HashSet<string>();
         IKernel kernel { set; get; }
         public int ContentCount { get; internal set; } = 0;
         public QAUrlService()
@@ -97,11 +94,20 @@ Answer:
                 context.Set("input", question);
 
                 var result = await kernel.RunAsync(context, ListFunctions[FunctionName]);
+                if (result.ErrorOccurred) throw new Exception(result.LastErrorDescription);
                 Result = result.Result;
                 
             }
             catch (Exception ex)
             {
+                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+                string text = ex.ToString();
+                ToastDuration duration = ToastDuration.Short;
+                double fontSize = 14;
+                var toast = Toast.Make(text, duration, fontSize);
+
+                await toast.Show(cancellationTokenSource.Token);
                 Console.WriteLine(ex);
             }
             finally
@@ -126,16 +132,27 @@ Answer:
             content = mainElement.InnerText;
 
             await kernel.Memory.SaveInformationAsync(COLLECTION, content, url, title);
+            Ids.Add(url);
             ContentCount++;
         }
 
         public async Task AddContent(string title, string content)
         {
             ContentCount++;
-            var url = "doc-" + ContentCount;
+            var url = $"doc-{title}-page-{ContentCount}";
            
             await kernel.Memory.SaveInformationAsync(COLLECTION, content, url, title);
             
+        }
+
+        public async Task Reset()
+        {
+            if (ContentCount <= 0) return;
+            foreach(var url in Ids)
+            {
+                await kernel.Memory.RemoveAsync(COLLECTION, url);
+            }
+            ContentCount = 0;
         }
     }
 }

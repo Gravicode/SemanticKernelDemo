@@ -11,6 +11,7 @@
         <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Extracted Address as JSON" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
 </form>
 
 @if (service.IsProcessing)
@@ -24,6 +25,11 @@
     protected override async Task OnInitializedAsync()
     {
 
+    }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
     }
     private async Task Process()
     {

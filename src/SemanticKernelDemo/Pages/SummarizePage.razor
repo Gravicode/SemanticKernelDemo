@@ -11,6 +11,7 @@
         <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Summarize" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
 </form>
 
 @if (service.IsProcessing)
@@ -20,8 +21,14 @@
     </div>
 }
 @code {
-    public string Input { get; set; }
+    public string Input { get; set; } = @"A quantum computer is a computer that exploits quantum mechanical phenomena. At small scales, physical matter exhibits properties of both particles and waves, and quantum computing leverages this behavior using specialized hardware. Classical physics cannot explain the operation of these quantum devices, and a scalable quantum computer could perform some calculations exponentially faster than any modern ""classical"" computer. In particular, a large-scale quantum computer could break widely used encryption schemes and aid physicists in performing physical simulations; however, the current state of the art is largely experimental and impractical. 
+    The basic unit of information in quantum computing is the qubit, similar to the bit in traditional digital electronics. Unlike a classical bit, a qubit can exist in a superposition of its two ""basis"" states, which loosely means that it is in both states simultaneously. When measuring a qubit, the result is a probabilistic output of a classical bit. If a quantum computer manipulates the qubit in a particular way, wave interference effects can amplify the desired measurement results. The design of quantum algorithms involves creating procedures that allow a quantum computer to perform calculations efficiently and quickly.";
     public string Result { get; set; }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
+    }
     protected override async Task OnInitializedAsync()
     {
 

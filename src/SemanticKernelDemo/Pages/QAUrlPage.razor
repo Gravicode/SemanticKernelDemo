@@ -6,7 +6,17 @@
         <label for="text1">Enter Page Url</label>
         <input type="text" @bind="Url" class="form-control" id="text1" placeholder="Enter Page Url Here" />
     </div>
-    <button type="button" @onclick="OpenDoc" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Add Pdf</button>
+    <button type="button" @onclick="OpenDoc" disabled="@service.IsProcessing" class="btn btn-primary mt-2">
+        @if (service.IsProcessing)
+        {
+            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+            <MudText Class="ms-2">processing</MudText>
+        }
+        else
+        {
+            <MudText>Add Pdf</MudText>
+        }
+    </button>
     <button type="button" @onclick="AddUrl" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Add Url</button>
     <div class="form-group">
         <label for="text3">Enter Question</label>
@@ -17,16 +27,16 @@
         <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Answer" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
 </form>
 
-<div class="alert alert-success">
+<div class="alert alert-success mt-2">
     Page Index Count: <b>@service.ContentCount</b>
 </div>
 
 @if (service.IsProcessing)
 {
     <div class="spinner-border mt-2" role="status">
-
     </div>
 }
 @code {
@@ -40,17 +50,25 @@
     HttpClient http;
     public async Task<FileResult> PickAndShow(PickOptions options)
     {
+        if (service.IsProcessing) return null;
+        service.IsProcessing = true;
+        await Task.Delay(1);
         try
         {
             var result = await FilePicker.Default.PickAsync(options);
             if (result != null)
             {
-                if (result.FileName.EndsWith("pdf", StringComparison.OrdinalIgnoreCase) )
+                if (result.FileName.EndsWith("pdf", StringComparison.OrdinalIgnoreCase))
                 {
+                    await service.Reset();
                     using var stream = await result.OpenReadAsync();
                     //var image = ImageSource.FromStream(() => stream);
-                    var content = PdfHelper.GetTextFromPdf(stream);
-                    await service.AddContent(result.FileName, content);
+                    var contents = PdfHelper.GetTextPerPageFromPdf(stream);
+                    foreach (var content in contents)
+                    {
+                        await service.AddContent(result.FileName, content);
+                        await Task.Delay(1);
+                    }
                 }
             }
 
@@ -60,23 +78,32 @@
         {
             // The user canceled or something went wrong
         }
+        finally
+        {
+            service.IsProcessing = false;
+        }
 
         return null;
     }
     async Task OpenDoc()
     {
-        await PickAndShow(new PickOptions() { FileTypes =FilePickerFileType.Pdf });
+        await PickAndShow(new PickOptions() { FileTypes = FilePickerFileType.Pdf });
     }
     async Task AddUrl()
     {
         if (!string.IsNullOrEmpty(Url))
         {
-            if(http==null)
+            if (http == null)
                 http = new HttpClient();
             await service.AddPageUrl(http, Url, "//body");
             Url = string.Empty;
             return;
         }
+    }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
     }
     private async Task Process()
     {

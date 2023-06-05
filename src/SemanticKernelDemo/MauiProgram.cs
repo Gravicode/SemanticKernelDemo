@@ -51,6 +51,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<QAUrlService>();
         builder.Services.AddSingleton<ReviewWriterService>();
         builder.Services.AddSingleton<IdeaGeneratorService>();
+        builder.Services.AddSingleton<InterviewService>();
+        builder.Services.AddSingleton<ComplexityService>();
+        builder.Services.AddSingleton<TabularizeService>();
         builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);
         return builder.Build();
 	}

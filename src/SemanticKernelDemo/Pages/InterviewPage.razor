@@ -1,0 +1,44 @@
+﻿@page "/Interview"
+@inject InterviewService service
+<h1>Interview Skill</h1>
+<form>
+  <div class="form-group">
+    <label for="text1">Enter Profession of Source Person</label>
+        <input type="text" @bind="Input" class="form-control" id="text1" placeholder="Enter Profession Here" />
+  </div>
+  <div class="form-group">
+    <label for="text2">Enter Number of Question</label>
+        <input type="number" @bind="Number" class="form-control" id="text2" placeholder="Enter Number of Question Here" />
+  </div>
+    <div class="form-group">
+        <label for="text2">Interview Questions</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Questions" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+</form>
+
+@if (service.IsProcessing)
+{
+        <div class="spinner-border mt-2" role="status">
+
+        </div>
+}
+@code {
+    public string Input { get; set; } = @"an AI entrepreneur";
+    public string Result { get; set; }
+    public int Number { get; set; } = 10;
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.GenerateQuestion(Number,Input);
+    }
+}

@@ -30,6 +30,7 @@
         <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Translated Code" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
 </form>
 
 
@@ -65,6 +66,11 @@
         toLang = Langs[1];
         Input = @"def predict_proba(X: Iterable[str]):
             return np.array([predict_one_probas(tweet) for tweet in X])";
+    }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
     }
     private async Task Process()
     {

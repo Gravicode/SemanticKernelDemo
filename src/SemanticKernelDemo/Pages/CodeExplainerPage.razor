@@ -11,6 +11,7 @@
         <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Code Explanation" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
 </form>
 
 @if (service.IsProcessing)
@@ -46,6 +47,12 @@ for (int i = 0; i < 300; i++) {
 
 loss.forward(model.forward(data[0]), results[0]).item<float>();";
     public string Result { get; set; }
+
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
+    }
     protected override async Task OnInitializedAsync()
     {
 

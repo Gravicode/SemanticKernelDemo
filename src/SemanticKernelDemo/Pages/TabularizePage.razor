@@ -1,0 +1,39 @@
+﻿@page "/Tabularize"
+@inject TabularizeService service
+<h1>Tabularize (csv) Skill</h1>
+<form>
+  <div class="form-group">
+    <label for="text1">Enter Unstructured Data</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Unstructured Text Here" />
+  </div>
+    <div class="form-group">
+        <label for="text2">Generated CSV</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Generated CSV" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+</form>
+
+@if (service.IsProcessing)
+{
+        <div class="spinner-border mt-2" role="status">
+
+        </div>
+}
+@code {
+    public string Input { get; set; } = @"Berdasarkan sensus penduduk tahun 2010, tercatat bahwa penduduk Jakarta berjumlah 9.547.541 jiwa yang terdiri dari orang Jawa sebanyak (36,17%), Betawi (28,29%), Sunda (14,61%), Tionghoa (6,62%), Batak (3,42%), Minang (2,85%), Melayu (0,96%), Madura (0,84%), Bugis (0,71%), Lampung (0,47%), asal Maluku (0,47%), Makassar (0,31%), Minahasa (0,39%), Aceh (0,32), asal NTB (0,26%), asal NTT (0,31%), Bali (0,16%), dan suku lainnya.";
+    public string Result { get; set; }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.Tabularize(Input);
+    }
+}

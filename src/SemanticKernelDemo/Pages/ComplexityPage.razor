@@ -1,0 +1,53 @@
+﻿@page "/Complexity"
+@inject ComplexityService service
+<h1>Time Complexity Skill</h1>
+<form>
+  <div class="form-group">
+    <label for="text1">Enter Code</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Code Here" />
+  </div>
+    <div class="form-group">
+        <label for="text2">Time Complexity</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Time Complexity" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+</form>
+
+@if (service.IsProcessing)
+{
+        <div class="spinner-border mt-2" role="status">
+
+        </div>
+}
+@code {
+    public string Input { get; set; } = @"unsafe static void Sort(int* a, int length)
+{
+    int negLength = length - 1;
+    for (int i = 0; i < negLength; ++i)
+    for (int n = i + 1; n < length; ++n)
+    {
+        int value = a[i];
+        int next = a[n];
+        if (value > next)
+        {
+            a[i] = next;
+            a[n] = value;
+        }
+    }
+}";
+    public string Result { get; set; }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    private async Task Process()
+    {
+        Result = await service.Calculate(Input);
+    }
+}

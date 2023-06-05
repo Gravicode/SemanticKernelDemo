@@ -11,11 +11,13 @@
         <label for="text2">Outline</label>
         <textarea type="text" @bind="Outline" rows="5" class="form-control" id="text2" placeholder="Outline" />
     </div>
+    <button type="button" @onclick="CopyClipboard1" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
     <button type="button" @onclick="CreateContent" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Create Content</button>
     <div class="form-group">
         <label for="text3">Content</label>
         <textarea type="text" @bind="Content" rows="5" class="form-control" id="text3" readonly placeholder="Generated Content" />
     </div>
+    <button type="button" @onclick="CopyClipboard2" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
 </form>
 
 @if (service.IsProcessing)
@@ -42,5 +44,15 @@
             Content = await service.GenerateContent(Outline);
             
 
+    }
+    async Task CopyClipboard1()
+    {
+        if (!string.IsNullOrEmpty(Outline))
+            await Clipboard.Default.SetTextAsync(Outline);
+    }
+    async Task CopyClipboard2()
+    {
+        if (!string.IsNullOrEmpty(Content))
+            await Clipboard.Default.SetTextAsync(Content);
     }
 }
