@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
+using SemanticKernelDemo.Helpers;
 
 namespace SemanticKernelDemo.Services
 {
@@ -119,6 +120,7 @@ What are the key action items in the transcript above.
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, input);
                 IsProcessing = true;
 
                 foreach (var FunctionName in FunctionNames)
@@ -132,6 +134,7 @@ What are the key action items in the transcript above.
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

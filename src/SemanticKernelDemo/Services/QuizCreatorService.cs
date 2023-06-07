@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class QuizCreatorService
@@ -78,6 +80,7 @@ Create a list of {{$number}} questions and answers from this text:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, Content);
                 IsProcessing = true;
                 var context = new ContextVariables();
                 context.Set("number", numberOfQuestion.ToString());
@@ -90,6 +93,7 @@ Create a list of {{$number}} questions and answers from this text:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

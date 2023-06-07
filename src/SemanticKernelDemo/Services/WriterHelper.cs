@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class WriterHelperService
@@ -92,6 +94,7 @@ Write an essay from outline above:
 
         public async Task<string> CreateOutline(string Topic)
         {
+            TokenHelper.CheckMaxToken(this.MaxTokens, Topic);
             string Result = string.Empty;
             if (IsProcessing) return Result;
 
@@ -106,6 +109,7 @@ Write an essay from outline above:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {
@@ -120,6 +124,7 @@ Write an essay from outline above:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, Outline);
                 IsProcessing = true;
                 var WriterHelper = await kernel.RunAsync(Outline, ListFunctions[FunctionName2]);
 
@@ -129,6 +134,7 @@ Write an essay from outline above:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

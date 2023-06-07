@@ -8,6 +8,8 @@ using CommunityToolkit.Maui.Core;
 using System.Threading;
 using CommunityToolkit.Maui.Alerts;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class QAUrlService
@@ -82,6 +84,7 @@ Answer:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, question);
                 IsProcessing = true;
 
                 var results = await kernel.Memory.SearchAsync(COLLECTION, question, limit: 2).ToListAsync();
@@ -101,7 +104,7 @@ Answer:
             catch (Exception ex)
             {
                 CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
+               
                 string text = ex.ToString();
                 ToastDuration duration = ToastDuration.Short;
                 double fontSize = 14;
@@ -109,6 +112,7 @@ Answer:
 
                 await toast.Show(cancellationTokenSource.Token);
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

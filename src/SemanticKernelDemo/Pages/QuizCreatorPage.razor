@@ -18,6 +18,7 @@
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
     <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2">Clear</button>
 </form>
 
 @if (service.IsProcessing)
@@ -43,6 +44,11 @@ Sejarah Indonesia banyak dipengaruhi oleh bangsa-bangsa pendatang dan penjajah. 
 Indonesia terdiri dari berbagai suku bangsa, bahasa, dan agama. Berdasarkan rumpun bangsa, Indonesia terdiri atas bangsa asli pribumi yakni Austronesia dan Melanesia di mana bangsa Austronesia yang terbesar jumlahnya dan lebih banyak mendiami Indonesia bagian barat. Dengan suku Jawa dan Sunda membentuk kelompok suku bangsa terbesar dengan persentase mencapai 57% dari seluruh penduduk Indonesia.[25] Semboyan nasional Indonesia, ""Bhinneka Tunggal Ika"" (Berbeda-beda tetapi tetap satu), bermakna keberagaman sosial-budaya yang membentuk satu kesatuan negara. Selain memiliki penduduk yang padat dan wilayah yang luas, Indonesia memiliki alam yang mendukung tingkat keanekaragaman hayati terbesar ke-2 di dunia.";
 
     public string Result { get; set; }
+    async Task Clear()
+    {
+        Input = string.Empty;
+        Result = string.Empty;
+    }
     protected override async Task OnInitializedAsync()
     {
 

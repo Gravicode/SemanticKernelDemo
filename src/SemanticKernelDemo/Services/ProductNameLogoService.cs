@@ -9,6 +9,8 @@ using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.AI.ImageGeneration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class ProductNameLogoService
@@ -87,6 +89,7 @@ Product names:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, desc);
                 IsProcessing = true;
                 // Get AI service instance used to generate images
                 var dallE = kernel.GetService<IImageGeneration>();
@@ -109,6 +112,7 @@ Product names:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                
             }
             finally
             {

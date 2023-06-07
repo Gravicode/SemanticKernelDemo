@@ -9,6 +9,8 @@ using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.Maui.Controls.Xaml;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class SentimentService
@@ -80,6 +82,7 @@ Sentence sentiment ratings:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, string.Join(' ',inputs));
                 IsProcessing = true;
                 var count = 1;
                 var prompt = string.Empty;
@@ -101,6 +104,7 @@ Sentence sentiment ratings:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                
             }
             finally
             {

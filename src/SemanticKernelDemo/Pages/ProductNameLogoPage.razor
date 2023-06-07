@@ -19,6 +19,7 @@
         <input type="number" @bind="Number" class="form-control" id="text4" placeholder="Enter Number of Names" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2 mb-2">Process</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mb-2">Clear</button>
 </form>
 
 @if (service.IsProcessing)
@@ -63,7 +64,12 @@
     public string Seed { get; set; } = "energic, youth, sophicticated, booster";
     public int Number { get; set; } = 5;
     public List<ProductInfo> Result { get; set; } = new();
-    HttpClient client = new();
+    HttpClient client = new(); async Task Clear()
+    {
+        Desc = string.Empty;
+        Seed = string.Empty;
+        
+    }
     protected override async Task OnInitializedAsync()
     {
 

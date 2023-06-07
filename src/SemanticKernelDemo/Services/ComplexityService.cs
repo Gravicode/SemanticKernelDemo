@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class ComplexityService
@@ -77,6 +79,7 @@ namespace SemanticKernelDemo.Services
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, code);
                 IsProcessing = true;
                 var Complexity = await kernel.RunAsync(code, ListFunctions[FunctionName]);
 
@@ -86,6 +89,7 @@ namespace SemanticKernelDemo.Services
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

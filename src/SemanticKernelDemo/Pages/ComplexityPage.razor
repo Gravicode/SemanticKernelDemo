@@ -12,6 +12,8 @@
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
     <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2">Clear</button>
 </form>
 
 @if (service.IsProcessing)
@@ -35,7 +37,11 @@
             a[n] = value;
         }
     }
-}";
+}"; async Task Clear()
+    {
+        Input = string.Empty;
+        Result = string.Empty;
+    }
     public string Result { get; set; }
     async Task CopyClipboard()
     {

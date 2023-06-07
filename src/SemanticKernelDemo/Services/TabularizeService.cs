@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class TabularizeService
@@ -78,6 +80,7 @@ A csv table summarizing content below:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, content);
                 IsProcessing = true;
                 var Tabularize = await kernel.RunAsync(content, ListFunctions[FunctionName]);
 
@@ -87,6 +90,7 @@ A csv table summarizing content below:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

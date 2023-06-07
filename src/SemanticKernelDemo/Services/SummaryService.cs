@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
+using SemanticKernelDemo.Helpers;
 
 namespace SemanticKernelDemo.Services
 {
@@ -77,6 +78,7 @@ Summarize the content above.
                     
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, input);
                 IsProcessing = true;
                 var summary = await kernel.RunAsync(input, ListFunctions[FunctionName]);
 
@@ -86,6 +88,7 @@ Summarize the content above.
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class RecipeService
@@ -110,6 +112,7 @@ RECIPE FOR: {{$input}}
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, FoodName);
                 IsProcessing = true;
                 var Recipe = await kernel.RunAsync(FoodName, ListFunctions[FunctionName]);
 
@@ -119,6 +122,7 @@ RECIPE FOR: {{$input}}
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

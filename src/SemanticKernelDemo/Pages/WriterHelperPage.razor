@@ -18,6 +18,7 @@
         <textarea type="text" @bind="Content" rows="5" class="form-control" id="text3" readonly placeholder="Generated Content" />
     </div>
     <button type="button" @onclick="CopyClipboard2" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2">Clear</button>
 </form>
 
 @if (service.IsProcessing)
@@ -54,5 +55,11 @@
     {
         if (!string.IsNullOrEmpty(Content))
             await Clipboard.Default.SetTextAsync(Content);
+    }
+    async Task Clear()
+    {
+        Content = string.Empty;
+        Outline = string.Empty;
+        Topic = string.Empty;
     }
 }

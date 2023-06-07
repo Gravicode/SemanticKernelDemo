@@ -17,7 +17,8 @@
         <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Generated HTML Data Table" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2 mb-2">Process</button>
-    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mb-2">Copy</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mb-2">Clear</button>
 </form>
 @if (service.IsProcessing)
 {
@@ -40,6 +41,11 @@
     protected override async Task OnInitializedAsync()
     {
 
+    }
+    async Task Clear()
+    {
+        Input = string.Empty;
+        Result = string.Empty;
     }
     async Task CopyClipboard()
     {

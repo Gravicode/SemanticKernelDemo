@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class IdeaGeneratorService
@@ -76,6 +78,7 @@ Brainstorm some ideas about {{$input}}:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, topic);
                 IsProcessing = true;
                 var IdeaGenerator = await kernel.RunAsync(topic, ListFunctions[FunctionName]);
 
@@ -85,6 +88,7 @@ Brainstorm some ideas about {{$input}}:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

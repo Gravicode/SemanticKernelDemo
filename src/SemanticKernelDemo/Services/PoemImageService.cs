@@ -9,6 +9,7 @@ using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.AI.Embeddings;
 using Microsoft.SemanticKernel.AI.ImageGeneration;
+using SemanticKernelDemo.Helpers;
 
 namespace SemanticKernelDemo.Services
 {
@@ -114,6 +115,7 @@ namespace SemanticKernelDemo.Services
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, input);
                 IsProcessing = true;
                 var ArtisticImageDesc = await kernel.RunAsync(input, ListFunctions[FunctionName]);
 
@@ -123,6 +125,7 @@ namespace SemanticKernelDemo.Services
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

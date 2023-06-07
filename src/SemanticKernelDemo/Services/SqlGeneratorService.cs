@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class SqlGeneratorService
@@ -81,6 +83,7 @@ Write query to {{$input}}:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, $"{tables} {command}");
                 IsProcessing = true;
                 var context = new ContextVariables();
                 context.Set("input", command);
@@ -93,6 +96,7 @@ Write query to {{$input}}:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

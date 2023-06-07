@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class TranslateProgramService
@@ -84,6 +86,7 @@ namespace SemanticKernelDemo.Services
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, Code);
                 IsProcessing = true;
                 var context = new ContextVariables();
                 context.Set("from", FromLang);
@@ -97,6 +100,7 @@ namespace SemanticKernelDemo.Services
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

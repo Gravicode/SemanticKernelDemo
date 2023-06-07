@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
+using SemanticKernelDemo.Helpers;
 
 namespace SemanticKernelDemo.Services
 {
@@ -82,6 +83,7 @@ Text: "{{$input}}" JSON Output:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, input);
                 IsProcessing = true;
                 var ExtractAddress = await kernel.RunAsync(input, ListFunctions[FunctionName]);
 
@@ -91,6 +93,7 @@ Text: "{{$input}}" JSON Output:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

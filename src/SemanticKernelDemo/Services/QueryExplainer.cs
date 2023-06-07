@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class QueryExplainerService
@@ -78,6 +80,7 @@ Here's what the query is doing, explained in a concise way:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, query);
                 IsProcessing = true;
                 var QueryExplainer = await kernel.RunAsync(query, ListFunctions[FunctionName]);
                 var Res = QueryExplainer.Result;
@@ -91,6 +94,7 @@ Here's what the query is doing, explained in a concise way:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

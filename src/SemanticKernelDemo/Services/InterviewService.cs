@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class InterviewService
@@ -76,6 +78,7 @@ Create a list of {{$number}} questions for my interview with a {{$input}}:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, Profession);
                 IsProcessing = true;
                 var context = new ContextVariables();
                 context.Set("number", Number.ToString());
@@ -88,6 +91,7 @@ Create a list of {{$number}} questions for my interview with a {{$input}}:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

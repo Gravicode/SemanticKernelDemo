@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class CodeExplainerService
@@ -79,6 +81,7 @@ Here's what the above class is doing, explained in a concise way:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, code);
                 IsProcessing = true;
                 var CodeExplainer = await kernel.RunAsync(code, ListFunctions[FunctionName]);
                 var Res = CodeExplainer.Result;
@@ -91,7 +94,8 @@ Here's what the above class is doing, explained in a concise way:
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex); 
+                return ex.ToString();
             }
             finally
             {

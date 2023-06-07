@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class GrammarCorrectionService
@@ -82,6 +84,7 @@ namespace SemanticKernelDemo.Services
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, Content);
                 IsProcessing = true;
                 var context = new ContextVariables();
                 context.Set("lang", Language);
@@ -94,6 +97,7 @@ namespace SemanticKernelDemo.Services
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {

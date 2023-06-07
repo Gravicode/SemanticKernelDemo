@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
+using SemanticKernelDemo.Helpers;
 
 namespace SemanticKernelDemo.Services
 {
@@ -85,6 +86,7 @@ namespace SemanticKernelDemo.Services
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, Code);
                 IsProcessing = true; 
                 var context = new ContextVariables();
                 context.Set("lang", Lang);
@@ -96,7 +98,8 @@ namespace SemanticKernelDemo.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Console.WriteLine(ex); 
+                return ex.ToString();
             }
             finally
             {

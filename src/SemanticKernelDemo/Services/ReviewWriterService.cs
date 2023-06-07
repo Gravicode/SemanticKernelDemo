@@ -8,6 +8,8 @@ using Microsoft.SemanticKernel.SemanticFunctions;
 using SemanticKernelDemo.Data;
 using Microsoft.SemanticKernel.Orchestration;
 
+using SemanticKernelDemo.Helpers;
+
 namespace SemanticKernelDemo.Services
 {
     public class ReviewWriterService
@@ -81,6 +83,7 @@ Review:
 
             try
             {
+                TokenHelper.CheckMaxToken(this.MaxTokens, $"{name} {objectName} {features}");
                 IsProcessing = true;
                 var context = new ContextVariables();
                 context.Set("object", objectName);
@@ -94,6 +97,7 @@ Review:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return ex.ToString();
             }
             finally
             {
