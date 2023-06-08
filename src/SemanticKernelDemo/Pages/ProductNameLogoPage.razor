@@ -19,7 +19,7 @@
         <input type="number" @bind="Number" class="form-control" id="text4" placeholder="Enter Number of Names" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2 mb-2">Process</button>
-    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mb-2">Clear</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2 mb-2">Clear</button>
 </form>
 
 @if (service.IsProcessing)

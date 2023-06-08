@@ -86,15 +86,15 @@ namespace SemanticKernelDemo.Services
             {
                 // Get AI service instance used to generate images
                 var dallE = kernel.GetService<IImageGeneration>();
-
                 
+
                 IsProcessing = true;
                 //var ArtisticImageDesc = await kernel.RunAsync(input, ListFunctions[FunctionName]);
                
               
                 // Use DALL-E 2 to generate an image. OpenAI in this case returns a URL (though you can ask to return a base64 image)
                 var imageUrl = await dallE.GenerateImageAsync(input, 512, 512);
-
+                
                Console.WriteLine(imageUrl);
                 Result = imageUrl;
             }

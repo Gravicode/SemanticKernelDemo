@@ -33,4 +33,7 @@ namespace SemanticKernelDemo.Data
             OpenAIApiKey = Preferences.Get("OpenAIApiKey", OpenAIApiKey);
         }
     }
+
+    
+   
 }

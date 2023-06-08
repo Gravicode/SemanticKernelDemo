@@ -1,0 +1,144 @@
+﻿@page "/Image-Variation"
+@using CommunityToolkit.Maui.Storage;
+@using OpenAI.ObjectModels;
+@inject ImageVariationService service
+@inject IFileSaver fileSaver
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<h1>Image Variation Skill</h1>
+<form>
+    
+    <div class="form-group">
+        <label for="text2">Enter Number of Images</label>
+        <input type="number" @bind="Number" class="form-control" id="text2" placeholder="Enter Number of Images" />
+    </div>
+    <div class="form-group">
+        <label for="text3">Select Image Size</label>
+        <select @bind="ImageSize" class="form-control" id="text3">
+
+            <option value="@(StaticValues.ImageStatics.Size.Size256)">@(StaticValues.ImageStatics.Size.Size256)</option>
+            <option value="@(StaticValues.ImageStatics.Size.Size512)">@(StaticValues.ImageStatics.Size.Size512)</option>
+            <option value="@(StaticValues.ImageStatics.Size.Size1024)">@(StaticValues.ImageStatics.Size.Size1024)</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <button type="button" @onclick="PickMedia" disabled="@service.IsProcessing" class="btn btn-success mt-2 mb-2">Choose Image</button>
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2 mb-2">Process</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2 mb-2">Clear</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+
+@if (Result != null && Result.Count > 0)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">No</th>
+                <th scope="col">Name</th>
+                <th scope="col">Image</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var count = 1;
+            }
+            @foreach (var item in Result)
+            {
+                <tr>
+                    <th scope="row">@(count++)</th>
+                    <td>@item.Title</td>
+                    <td><img width="100" src="@item.Url" alt="image" /></td>
+                    <td>
+                        <Button Class="btn-outline-primary" @onclick="()=>Download(item)">Download</Button>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+@code {
+    List<ToastMessage> messages = new List<ToastMessage>();
+    public string ImageSize { get; set; } = StaticValues.ImageStatics.Size.Size256;
+    public int Number { get; set; } = 5;
+    public List<ImageModel> Result { get; set; } = new();
+    public byte[] ImageData { get; set; }
+    public string ImageName { get; set; }
+    HttpClient client = new();
+    async Task Clear()
+    {
+        ImageData = null;
+        ImageName = string.Empty;
+    }
+    public async void PickMedia()
+    {
+        PickOptions options = new PickOptions();
+
+        try
+        {
+            var result = await FilePicker.Default.PickAsync(options);
+            if (result != null)
+            {
+                if (result.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) ||
+                    result.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase) ||
+                    result.FileName.EndsWith("jpeg", StringComparison.OrdinalIgnoreCase) ||
+                    result.FileName.EndsWith("gif", StringComparison.OrdinalIgnoreCase) ||
+                    result.FileName.EndsWith("bmp", StringComparison.OrdinalIgnoreCase))
+                {
+                    using var stream = await result.OpenReadAsync();
+                    //var image = ImageSource.FromStream(() => stream); 
+                    var ms = new MemoryStream();
+                    stream.CopyTo(ms);
+                    ImageData = GraphicsExtensions.CropImage(ms.ToArray());
+                    ImageName = Path.GetFileNameWithoutExtension(result.FileName);
+                }
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            // The user canceled or something went wrong
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    public async void Download(ImageModel item)
+    {
+        var bytes = await client.GetByteArrayAsync(item.Url);
+        var cts = new CancellationTokenSource();
+        using var stream = new MemoryStream(bytes);
+        var fileSaverResult = await fileSaver.SaveAsync("generated.png", stream, cts.Token);
+        fileSaverResult.EnsureSuccess();
+
+        cts = new CancellationTokenSource();
+        //var toast = CommunityToolkit.Maui.Alerts.Toast.Make($"File is saved: {fileSaverResult.FilePath}", duration, fontSize);
+        var toast = new ToastMessage
+            {
+                Type = ToastType.Success,
+                Message = $"File is saved: {fileSaverResult.FilePath}",
+            };
+        messages.Add(toast);
+    }
+    private async Task Process()
+    {
+        if (ImageData == null)
+        {
+            messages.Add(new ToastMessage() { Title = "Warning", Message = "Pick image file first" });
+            return;
+        }
+      
+        Result = await service.GenerateImageVariationsAsync(ImageData, ImageName, Number, ImageSize);
+
+    }
+}

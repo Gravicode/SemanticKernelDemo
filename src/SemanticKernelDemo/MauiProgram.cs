@@ -4,6 +4,7 @@ using BlazorBootstrap;
 using SemanticKernelDemo.Services;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Maui;
+using OpenAI.Extensions;
 
 namespace SemanticKernelDemo;
 
@@ -27,8 +28,8 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-	
-		builder.Services.AddSingleton<SummaryService>();
+        builder.Services.AddOpenAIService(settings => { settings.ApiKey = AppConstants.OpenAIApiKey; settings.Organization = AppConstants.OrgID; });
+        builder.Services.AddSingleton<SummaryService>();
 		builder.Services.AddSingleton<ArtisticImageService>();
 		builder.Services.AddSingleton<QnAService>();
 		builder.Services.AddSingleton<SentimentService>();
@@ -54,6 +55,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<InterviewService>();
         builder.Services.AddSingleton<ComplexityService>();
         builder.Services.AddSingleton<TabularizeService>();
+        builder.Services.AddSingleton<ImageGeneratorService>();
+        builder.Services.AddSingleton<ImageVariationService>();
         builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);
         return builder.Build();
 	}
