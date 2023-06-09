@@ -13,6 +13,7 @@ namespace SemanticKernelDemo.Data
             canvas.DrawEllipse(centerX - radius, centerY - radius,
                           radius + radius, radius + radius);
         }
+        const int MaxWidth = 800;
         public static byte[] CropImage(byte[] Data)
         {
             // decode the bitmap stream
@@ -21,8 +22,29 @@ namespace SemanticKernelDemo.Data
             if (resourceBitmap != null)
             {
                 var widthImg = Math.Min(resourceBitmap.Width, resourceBitmap.Height);
+                
+                //scaling image to max allowed
+                if (widthImg > MaxWidth)
+                {
+                    if (widthImg == resourceBitmap.Width)
+                    {
+                        var newWidth = MaxWidth;
+                        var newHeight = newWidth * resourceBitmap.Height / resourceBitmap.Width;
+                        var infoSize = new SKImageInfo(newWidth,newHeight, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+                        var resizedBitmap = resourceBitmap.Resize(infoSize, SKFilterQuality.High); //Resize to the canvas
+                        resourceBitmap = resizedBitmap;
+                    }
+                    else
+                    {
+                        var newHeight = MaxWidth;
+                        var newWidth = newHeight * resourceBitmap.Width / resourceBitmap.Height;
+                        var infoSize = new SKImageInfo(newWidth, newHeight, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+                        var resizedBitmap = resourceBitmap.Resize(infoSize, SKFilterQuality.High); //Resize to the canvas
+                        resourceBitmap = resizedBitmap;
+                    }
+                    widthImg = MaxWidth;
+                }
                 var info = new SKImageInfo(widthImg, widthImg, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
-                var resizedBitmap = resourceBitmap.Resize(info, SKFilterQuality.High); //Resize to the canvas
                 using (var plainSkSurface = SKSurface.Create(info))
                 {
                     var plainCanvas = plainSkSurface.Canvas;
@@ -33,14 +55,7 @@ namespace SemanticKernelDemo.Data
                     {
                         paintInfo.IsAntialias = true;
                         plainCanvas.DrawBitmap(resourceBitmap, new SKPoint(0, 0), paintInfo);
-                        //paintInfo.Typeface = SKTypeface.FromFamilyName("Calibri", SKFontStyle.Bold);
-                        //paintInfo.TextSize = FontSize;
-                        //paintInfo.Color = SKColors.Red;
-                        //paintInfo.IsAntialias = true;
-
-                        //var xToDraw = (ImageWidth - paintInfo.MeasureText(text)) / 2;
-                        //var yToDraw = (ImageHeight - FontSize) / 2 + FontSize;
-                        //plainCanvas.DrawText(text, xToDraw, yToDraw, paintInfo);
+                      
                     }
                     plainCanvas.Flush();
 
@@ -49,28 +64,7 @@ namespace SemanticKernelDemo.Data
                 }
             }
             return default;
-            //Bitmap sourceImg;
-            //using (var ms = new MemoryStream(Data))
-            //{
-            //    sourceImg = new Bitmap(ms);
-            //}
-            //if (sourceImg.Width == sourceImg.Height)
-            //{
-            //    return Data;
-            //}
-            //var width = Math.Min(sourceImg.Width, sourceImg.Height);
-            //var newImg = new Bitmap(width, width);
-            //using (var newGraphic = System.Drawing.Graphics.FromImage(newImg))
-            //{
-            //    newGraphic.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
-            //    newGraphic.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.High;
-            //    newGraphic.Clear(System.Drawing.Color.Transparent);
-            //    newGraphic.DrawImage(sourceImg, 0, 0, width, width);
-            //    newGraphic.Flush();
-            //}
-            //var mem = new MemoryStream();
-            //newImg.Save(mem, System.Drawing.Imaging.ImageFormat.Png);
-            //return mem.ToArray();
+           
         }
        
 
