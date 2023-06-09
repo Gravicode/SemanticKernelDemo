@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using global::Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Diagnostics;
-using Microsoft.SemanticKernel.SkillDefinition;
 
 namespace CustomSemanticKernel;
 
@@ -16,7 +14,7 @@ public static class Verify
     {
         if (obj is null)
         {
-            ThrowValidationException(ValidationException.ErrorCodes.NullValue, message);
+            ThrowValidationException("NullValue", message);
         }
     }
 
@@ -26,7 +24,7 @@ public static class Verify
         NotNull(str, message);
         if (string.IsNullOrWhiteSpace(str))
         {
-            ThrowValidationException(ValidationException.ErrorCodes.EmptyValue, message);
+            ThrowValidationException("EmptyValue", message);
         }
     }
 
@@ -63,7 +61,7 @@ public static class Verify
         NotNull(prefix, "The prefix to verify is empty");
         if (!text.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
         {
-            ThrowValidationException(ValidationException.ErrorCodes.MissingPrefix, message);
+            ThrowValidationException("MissingPrefix", message);
         }
     }
 
@@ -71,7 +69,7 @@ public static class Verify
     {
         if (!Directory.Exists(path))
         {
-            ThrowValidationException(ValidationException.ErrorCodes.DirectoryNotFound, $"Directory not found: {path}");
+            ThrowValidationException("DirectoryNotFound", $"Directory not found: {path}");
         }
     }
 
@@ -93,8 +91,8 @@ public static class Verify
 
                 if (!seen.Add(p.Name))
                 {
-                    throw new KernelException(
-                        KernelException.ErrorCodes.InvalidFunctionDescription,
+                    throw new Exception(
+                       
                         $"The function has two or more parameters with the same name '{p.Name}'");
                 }
             }
@@ -107,7 +105,7 @@ public static class Verify
 
         if (cmp <= 0)
         {
-            throw new ValidationException(ValidationException.ErrorCodes.OutOfRange, message);
+            throw new Exception( message);
         }
     }
 
@@ -117,19 +115,19 @@ public static class Verify
 
         if (cmp >= 0)
         {
-            throw new ValidationException(ValidationException.ErrorCodes.OutOfRange, message);
+            throw new Exception( message);
         }
     }
 
     [DoesNotReturn]
     private static void ThrowInvalidName(string kind, string name) =>
-        throw new KernelException(
-            KernelException.ErrorCodes.InvalidFunctionDescription,
+        throw new Exception(
+            
             $"A {kind} can contain only ASCII letters, digits, and underscores: '{name}' is not a valid name.");
 
     [DoesNotReturn]
-    private static void ThrowValidationException(ValidationException.ErrorCodes errorCodes, string message) =>
-        throw new ValidationException(errorCodes, message);
+    private static void ThrowValidationException(string errorCodes, string message) =>
+        throw new Exception($"{errorCodes}: {message}");
 }
 
 

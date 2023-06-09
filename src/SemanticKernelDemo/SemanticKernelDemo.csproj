@@ -58,8 +58,8 @@
         <PackageReference Include="Betalgo.OpenAI" Version="7.0.0" />
         <PackageReference Include="Blazor.Bootstrap" Version="1.7.3" />
         <PackageReference Include="CommunityToolkit.Maui" Version="5.1.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0-rc.2.22430.11" />
-        <PackageReference Include="Microsoft.SemanticKernel" Version="0.13.277.1-preview" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+        <PackageReference Include="Microsoft.SemanticKernel" Version="0.15.230531.5-preview" />
         <PackageReference Include="PdfSharpTextExtractor" Version="1.0.2" />
         <PackageReference Include="SkiaSharp" Version="2.88.3" />
         <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />

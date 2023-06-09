@@ -34,7 +34,7 @@ namespace SemanticKernelDemo.Services
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAIChatCompletionService("chatgpt", "gpt-3.5-turbo", apiKey, orgId);
+            kernel.Config.AddOpenAIChatCompletionService("gpt-3.5-turbo", apiKey, orgId:orgId);
             //SetupSkill();
         }
 
