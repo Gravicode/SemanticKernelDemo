@@ -64,6 +64,12 @@
         <PackageReference Include="SkiaSharp" Version="2.88.3" />
         <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     </ItemGroup>
+
+    <ItemGroup>
+      <MauiXaml Update="MaskPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+    </ItemGroup>
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Configuration)' == 'Release'">
 		<AndroidKeyStore>True</AndroidKeyStore>
 		<AndroidSigningKeyStore>myapp.keystore</AndroidSigningKeyStore>

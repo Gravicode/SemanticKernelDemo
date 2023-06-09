@@ -3,6 +3,8 @@
 @using OpenAI.ObjectModels;
 @inject ImageEditService service
 @inject IFileSaver fileSaver
+@inject IJSRuntime JS
+@using CommunityToolkit.Maui.Views
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 
 <h1>Image Edit Skill</h1>
@@ -27,48 +29,82 @@
     <div class="form-group">
         <button type="button" @onclick="PickMedia" disabled="@service.IsProcessing" class="btn btn-success mt-2 mb-2">Choose Image</button>
     </div>
+    <div class="form-group">
+        <button type="button" @onclick="EditMask" disabled="@service.IsProcessing" class="btn btn-info mt-2 mb-2">Setup Mask</button>
+    </div>
+    @if (!string.IsNullOrEmpty(ImageUrl))
+    {
+        <div class="form-group back-img">
+            <img src="@ImageUrl" alt="mask" />
+        </div>
+    }
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2 mb-2">Process</button>
     <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2 mb-2">Clear</button>
 </form>
+<Modal @ref="modal" Title="Mask Image" Size="ModalSize.ExtraLarge" IsVerticallyCentered="true" IsScrollable="true">
+    <BodyTemplate>
 
+        <div class="max-w-6xl px-5 mx-auto my-8">
+            <div class="flex flex-col lg:flex-row">
+
+                <!-- Image editor -->
+                <div class="mx-auto max-w-xl flex-shrink-0">
+                    <h6>Select area that you want to edit</h6>
+                    <div @ref="editorDiv" @onregiondrawn="HandleRegionDrawnAsync" class="image-editor">
+                        <img src="@ImageUrl" id="img-container" />
+                    </div>
+                    <p class="my-2">
+                        <div class="text-sm text-gray-600 mb-2">@progressMessage</div>
+                        <ProgressBar Visible="@isProcessing" Percent="@progressPercent" />
+                    </p>
+                </div>
+            </div>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="ResetMask">Reset</Button>
+        <Button Color="ButtonColor.Primary" @onclick="OnHideModalClick">Close</Button>
+    </FooterTemplate>
+</Modal>
 @if (service.IsProcessing)
 {
-        <div class="spinner-border mt-2" role="status">
-        </div>
+    <div class="spinner-border mt-2" role="status">
+    </div>
 }
 
 @if (Result != null && Result.Count > 0)
 {
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">No</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Logo</th>
-                    <th scope="col">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">No</th>
+                <th scope="col">Name</th>
+                <th scope="col">Logo</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
             @{
                 var count = 1;
             }
             @foreach (var item in Result)
             {
-                        <tr>
-                            <th scope="row">@(count++)</th>
-                            <td>@item.Title</td>
-                            <td><img width="100" src="@item.Url" alt="logo" /></td>
-                            <td>
-                                <Button Class="btn-outline-primary" @onclick="()=>Download(item)">Download</Button>
-                            </td>
-                        </tr>
+                <tr>
+                    <th scope="row">@(count++)</th>
+                    <td>@item.Title</td>
+                    <td><img width="100" src="@item.Url" alt="logo" /></td>
+                    <td>
+                        <Button Class="btn-outline-primary" @onclick="()=>Download(item)">Download</Button>
+                    </td>
+                </tr>
             }
 
-            </tbody>
-        </table>
+        </tbody>
+    </table>
 }
 
 @code {
+
     List<ToastMessage> messages = new List<ToastMessage>();
     public string Desc { get; set; } = "make it retro style";
     public string ImageSize { get; set; } = StaticValues.ImageStatics.Size.Size256;
@@ -79,13 +115,156 @@
     public string ImageName { get; set; }
     public string ImageMaskName { get; set; }
     HttpClient client = new();
+    #region modal
+    private Modal modal;
+
+    private async Task OnHideModalClick()
+    {
+        await modal?.HideAsync();
+    }
+    ElementReference editorDiv;
+    IJSObjectReference module;
+
+
+    double progressPercent;
+    string progressMessage;
+    bool isProcessing;
+
+    string ImageUrl;
+
+    [Parameter] public int Id { get; set; }
+
+
+    string ConvertToBase64Image(byte[] imgData)
+    {
+        var base64String = Convert.ToBase64String(imgData);
+
+        return "data:image/png;base64," + base64String;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Load and initialize this component's JS module
+            module = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./Pages/ImageEditPage.razor.js");
+        }
+    }
+    async Task ResetMask()
+    {
+        ImageMaskData = ImageData;
+        ImageUrl = ConvertToBase64Image(ImageMaskData);
+    }
+    private async Task HandleRegionDrawnAsync(RegionDrawnEventArgs eventArgs)
+    {
+        // Copy the raw image bytes into .NET memory
+        //var imageBytes = eventArgs.SourceImage.InvokeUnmarshalled<byte[]>("getBytes");
+        var imageBytes = Convert.FromBase64String(eventArgs.SourceImage);
+        //var selectionBytes = eventArgs.SelectedRegion.InvokeUnmarshalled<byte[]>("getBytes");
+        var selectionBytes = Convert.FromBase64String(eventArgs.SelectedRegion);
+        await eventArgs.DisposeAsync();
+        ImageMaskData = await ImageHelper.MakeTransparent(ImageMaskData, selectionBytes);
+        //ImageMaskData = await ImageHelper.ChangeToFuschia( selectionBytes);
+        ImageUrl = ConvertToBase64Image(ImageMaskData);
+        // Content-aware fill over the selection region
+        //await RunPatchMatchAsync(imageBytes, selectionBytes);
+    }
+    /*
+    private async Task RunPatchMatchAsync(byte[] imageBytes, byte[] selectionBytes)
+    {
+    isProcessing = true;
+    var sourceImage = Image.Load<Rgb24>(imageBytes);
+    var maskImage = Image.Load<Rgb24>(selectionBytes);
+    var patchMatch = new PatchMatch(sourceImage, maskImage, patchSize: 8);
+        var startTime = DateTime.Now;
+        while (patchMatch.PercentCompleted < 100)
+        {
+        progressPercent = patchMatch.PercentCompleted;
+        progressMessage = $"Processing image ({progressPercent:F0}%)";
+        StateHasChanged();
+        await Task.Delay(1); // Yield execution so the browser can paint the updated document
+
+        patchMatch.Iterate();
+        resultImageUrl = patchMatch.Image.ToDataUrl();
+    }
+
+    progressMessage = $"Done after {(DateTime.Now - startTime).TotalSeconds:F1}s";
+    await module.InvokeVoidAsync("clearSelection", editorDiv);
+    isProcessing = false;
+    }
+    */
+    #endregion
     async Task Clear()
     {
         Desc = string.Empty;
+        ImageUrl = string.Empty;
+        ImageData = null;
+        ImageMaskData = null;
+        ImageName = string.Empty;
+        ImageMaskName = string.Empty;
+    }
+    //test only
+    [JSInvokable]
+    public static async Task<string> GetSelectedRegion(string data1, string data2)
+    {
+        byte[] json1 = Convert.FromBase64String(data1);//(byte[])data1;//.ToJSON(); //await data1.InvokeAsync<byte[]>("getBytes");
+        byte[] json2 = Convert.FromBase64String(data2);//.ToJSON();//await data2.InvokeAsync<byte[]>("getBytes");
+        Console.WriteLine(json1);
+        Console.WriteLine(json2);
+        return "oke";
+    }
+    async Task EditMask()
+    {
 
+        await modal?.ShowAsync();
+        await module.InvokeVoidAsync("init", editorDiv);
+        
+
+        // MainThread.BeginInvokeOnMainThread(async () =>
+        //{
+        //    await AppConstants.MainPage?.Navigation.PushModalAsync(new MaskPage());
+
+        //});
+
+        // var popup = new Popup
+        //     {
+        //         Content = new VerticalStackLayout
+        //         {
+        //             Children =
+        // {
+        //     new Label
+        //     {
+        //         Text = "This is a very important message!"
+        //     }
+        // }
+        //         }
+        //     };
+        // MainThread.BeginInvokeOnMainThread(async () =>
+        //{
+        //     var result = await AppConstants.MainPage?.ShowPopupAsync(popup);
+
+        //});
+        //    var popup = new MaskPage();
+        //    MainThread.BeginInvokeOnMainThread(async() =>
+        //{
+        //    var result = await AppConstants.MainPage?.ShowPopupAsync(popup);
+
+        //    if (result is bool boolResult)
+        //    {
+        //        if (boolResult)
+        //        {
+        //            // Yes was tapped
+        //        }
+        //        else
+        //        {
+        //            // No was tapped
+        //        }
+        //    }
+        //// Code to run on the main thread
+        //});
 
     }
-    public async void PickMedia()
+    public async Task PickMedia()
     {
         PickOptions options = new PickOptions();
 
@@ -94,11 +273,13 @@
             var result = await FilePicker.Default.PickAsync(options);
             if (result != null)
             {
-                if (result.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) ||
+                if (
+                    result.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) ||
                     result.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase) ||
                     result.FileName.EndsWith("jpeg", StringComparison.OrdinalIgnoreCase) ||
                     result.FileName.EndsWith("gif", StringComparison.OrdinalIgnoreCase) ||
-                    result.FileName.EndsWith("bmp", StringComparison.OrdinalIgnoreCase))
+                    result.FileName.EndsWith("bmp", StringComparison.OrdinalIgnoreCase)
+                    )
                 {
                     using var stream = await result.OpenReadAsync();
                     //var image = ImageSource.FromStream(() => stream);
@@ -106,6 +287,14 @@
                     stream.CopyTo(ms);
                     ImageData = GraphicsExtensions.CropImage(ms.ToArray());
                     ImageName = Path.GetFileNameWithoutExtension(result.FileName);
+
+                    ImageMaskName = $"Mask-{ImageName}";
+                    ImageMaskData = ImageData;
+                    ImageUrl = ConvertToBase64Image(ImageMaskData);
+                }
+                else
+                {
+                    messages.Add(new ToastMessage(ToastType.Warning, "Select image file only"));
                 }
 
             }
@@ -116,10 +305,7 @@
             // The user canceled or something went wrong
         }
     }
-    protected override async Task OnInitializedAsync()
-    {
 
-    }
     public async void Download(ImageModel item)
     {
         var bytes = await client.GetByteArrayAsync(item.Url);
@@ -141,15 +327,15 @@
     {
         if (ImageData == null)
         {
-            messages.Add(new ToastMessage() { Title = "Warning", Message="Pick image file first" });
+            messages.Add(new ToastMessage() { Title = "Warning", Message = "Pick image file first" });
             return;
         }
         if (ImageMaskData == null)
         {
-            messages.Add(new ToastMessage() { Title = "Warning", Message="Edit image mask first" });
+            messages.Add(new ToastMessage() { Title = "Warning", Message = "Edit image mask first" });
             return;
         }
-        Result = await service.GenerateImageEditAsync(ImageData,ImageName,Desc,ImageMaskData,ImageMaskName, Number, ImageSize);
+        Result = await service.GenerateImageEditAsync(ImageData, ImageName, Desc, ImageMaskData, ImageMaskName, Number, ImageSize);
 
     }
 }

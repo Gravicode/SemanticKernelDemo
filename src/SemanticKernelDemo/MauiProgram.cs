@@ -57,6 +57,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<TabularizeService>();
         builder.Services.AddSingleton<ImageGeneratorService>();
         builder.Services.AddSingleton<ImageVariationService>();
+        builder.Services.AddSingleton<ImageEditService>();
         builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);
         return builder.Build();
 	}

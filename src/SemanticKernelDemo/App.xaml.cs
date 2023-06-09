@@ -6,6 +6,11 @@ public partial class App : Application
 	{
 		InitializeComponent();
 
-		MainPage = new MainPage();
-	}
+        MainPage = new MainPage();
+        //var navPage = new NavigationPage(new MainPage());
+        //MainPage = navPage;
+    
+
+
+    }
 }
