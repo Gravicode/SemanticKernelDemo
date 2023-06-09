@@ -1,0 +1,113 @@
+﻿@page "/Audio-Transcript"
+@inject AudioTranscriptService service
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<h1>Audio Transcript Skill</h1>
+<form>
+    <div class="form-group">
+        <button type="button" @onclick="PickMedia" disabled="@service.IsProcessing" class="btn btn-success mt-2 mb-2">Choose Audio File (mp3)</button>
+    </div>
+    <div class="form-group">
+        <label for="text1">Selected File</label>
+        <input type="text" @bind="AudioName" class="form-control" id="text2" readonly placeholder="Filename" />
+    </div>
+
+    <div class="form-group">
+        <label for="text2">Audio Transcript</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Audio Transcript" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2">Clear</button>
+    <button type="button" @onclick="SpeakNow" class="btn btn-warning mt-2">Read</button>
+    <button type="button" @onclick="CancelSpeech" class="btn btn-danger mt-2">Stop</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public byte[] AudioData { get; set; }
+    public string AudioName { get; set; }
+    List<ToastMessage> messages = new List<ToastMessage>();
+    public string Result { get; set; }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
+    }
+    CancellationTokenSource cts;
+
+    public async Task SpeakNow()
+    {
+        if (string.IsNullOrEmpty(Result))
+        {
+            messages.Add(new ToastMessage() { Title = "Warning", Message = "Please transcipt audio file first." });
+        } else {
+            cts = new CancellationTokenSource();
+            await TextToSpeech.Default.SpeakAsync(Result, cancelToken: cts.Token); 
+        }
+
+        // This method will block until utterance finishes.
+    }
+
+    // Cancel speech if a cancellation token exists & hasn't been already requested.
+    public void CancelSpeech()
+    {
+        if (cts?.IsCancellationRequested ?? true)
+            return;
+
+        cts.Cancel();
+    }
+    public async Task PickMedia()
+    {
+        PickOptions options = new PickOptions();
+
+        try
+        {
+            var result = await FilePicker.Default.PickAsync(options);
+            if (result != null)
+            {
+                if (
+                    result.FileName.EndsWith("mp3", StringComparison.OrdinalIgnoreCase) 
+                    )
+                {
+                    using var stream = await result.OpenReadAsync();
+
+                    var ms = new MemoryStream();
+                    stream.CopyTo(ms);
+                    AudioData = ms.ToArray();
+                    AudioName = Path.GetFileName(result.FileName);
+
+                }
+                else
+                {
+                    messages.Add(new ToastMessage(ToastType.Warning, "Only support mp3"));
+                }
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            // The user canceled or something went wrong
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    async Task Clear()
+    {
+        AudioData = null;
+        AudioName = string.Empty;
+
+        Result = string.Empty;
+    }
+    private async Task Process()
+    {
+        Result = await service.TranscriptAudio(AudioData,AudioName);
+    }
+}
