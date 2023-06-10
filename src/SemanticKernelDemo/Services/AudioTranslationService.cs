@@ -1,8 +1,10 @@
 ﻿using OpenAI.Interfaces;
 using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels;
+
 namespace SemanticKernelDemo.Services
 {
-    public class EmbeddingService
+    public class AudioTranslationService
     {
         public string Username { get; set; } = "TestUser";
         IOpenAIService openAiService { set; get; }
@@ -14,57 +16,43 @@ namespace SemanticKernelDemo.Services
         /// <param name="organization">OpenAI organization id. This is usually optional unless your account belongs to multiple organizations.</param>
         /// <param name="handlerFactory">Retry handler</param>
         /// <param name="log">Logger</param>
-        public EmbeddingService(IOpenAIService service)
+        public AudioTranslationService(IOpenAIService service)
         {
             this.openAiService = service;
         }
 
-        public double GetCosineSimilarity(List<double> V1, List<double> V2)
-        {
-            int N = 0;
-            N = ((V2.Count < V1.Count) ? V2.Count : V1.Count);
-            double dot = 0.0d;
-            double mag1 = 0.0d;
-            double mag2 = 0.0d;
-            for (int n = 0; n < N; n++)
-            {
-                dot += V1[n] * V2[n];
-                mag1 += Math.Pow(V1[n], 2);
-                mag2 += Math.Pow(V2[n], 2);
-            }
 
-            return dot / (Math.Sqrt(mag1) * Math.Sqrt(mag2));
-        }
-        public async Task<List<double>> GenerateEmbeddingAsync(string Content, CancellationToken cancellationToken = default)
+        public async Task<string> TranslateAudio(byte[] AudioData, string Filename, CancellationToken cancellationToken = default)
         {
             if (IsProcessing) return default;
             try
             {
                 IsProcessing = true;
-              
-                var embeddingResult = await openAiService.Embeddings.CreateEmbedding(new EmbeddingCreateRequest()
+
+                var audioResult = await openAiService.Audio.CreateTranslation(new  AudioCreateTranscriptionRequest
                 {
-                    InputAsList = new List<string> { Content },
-                    Model = "text-embedding-ada-002"
+                    FileName = Filename,
+                    File = AudioData,
+                    Model = "whisper-1",
+                    ResponseFormat = StaticValues.AudioStatics.ResponseFormat.VerboseJson
                 });
-                var Result = new List<double>(); 
-                if (embeddingResult.Successful)
+                var results = string.Empty;
+                if (audioResult.Successful)
                 {
-                    Result = embeddingResult.Data.FirstOrDefault()?.Embedding;
-                    Console.WriteLine(embeddingResult.Data.FirstOrDefault());
+                    results = string.Join("\n", audioResult.Text);
+                    Console.WriteLine(results);
+
                 }
                 else
                 {
-                    if (embeddingResult.Error == null)
+                    if (audioResult.Error == null)
                     {
                         throw new Exception("Unknown Error");
                     }
-                    
-                    Console.WriteLine($"{embeddingResult.Error.Code}: {embeddingResult.Error.Message}");
+                    results = $"{audioResult.Error.Code}: {audioResult.Error.Message}";
+                    Console.WriteLine($"{audioResult.Error.Code}: {audioResult.Error.Message}");
                 }
-                
-
-                return Result;
+                return results;
             }
             catch (Exception ex)
             {
@@ -77,6 +65,5 @@ namespace SemanticKernelDemo.Services
             }
             return default;
         }
-
     }
 }

@@ -1,8 +1,9 @@
-﻿@page "/Audio-Transcript"
-@inject AudioTranscriptService service
+﻿@page "/Audio-Translation"
+@inject AudioTranslationService service
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 
-<h1>Audio Transcript Skill</h1>
+<h1>Audio Translation Skill</h1>
+<p>Translate audio to English</p>
 <form>
     <div class="form-group">
         <button type="button" @onclick="PickMedia" disabled="@service.IsProcessing" class="btn btn-success mt-2 mb-2">Choose Audio File</button>
@@ -13,8 +14,8 @@
     </div>
 
     <div class="form-group">
-        <label for="text2">Audio Transcript</label>
-        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Audio Transcript" />
+        <label for="text2">Audio Translation</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Audio Translation" />
     </div>
     <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
     <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
@@ -45,9 +46,11 @@
         if (string.IsNullOrEmpty(Result))
         {
             messages.Add(new ToastMessage() { Title = "Warning", Message = "Please transcipt audio file first." });
-        } else {
+        }
+        else
+        {
             cts = new CancellationTokenSource();
-            await TextToSpeech.Default.SpeakAsync(Result, cancelToken: cts.Token); 
+            await TextToSpeech.Default.SpeakAsync(Result, cancelToken: cts.Token);
         }
 
         // This method will block until utterance finishes.
@@ -76,7 +79,7 @@
                     result.FileName.EndsWith("mpeg", StringComparison.OrdinalIgnoreCase) ||
                     result.FileName.EndsWith("wav", StringComparison.OrdinalIgnoreCase) ||
                     result.FileName.EndsWith("m4a", StringComparison.OrdinalIgnoreCase) ||
-                    result.FileName.EndsWith("webm", StringComparison.OrdinalIgnoreCase) 
+                    result.FileName.EndsWith("webm", StringComparison.OrdinalIgnoreCase)
 
                     )
                 {
@@ -114,6 +117,6 @@
     }
     private async Task Process()
     {
-        Result = await service.TranscriptAudio(AudioData,AudioName);
+        Result = await service.TranslateAudio(AudioData, AudioName);
     }
 }

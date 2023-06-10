@@ -62,6 +62,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<EditTextService>();
         builder.Services.AddSingleton<EmbeddingService>();
         builder.Services.AddSingleton<TokenizerService>();
+        builder.Services.AddSingleton<AudioTranslationService>();
         builder.Services.AddSingleton<IFileSaver>(FileSaver.Default);
         return builder.Build();
 	}
