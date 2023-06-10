@@ -27,18 +27,19 @@ namespace SemanticKernelDemo.Services
 
         public InterviewService()
         {
-            kernel = KernelBuilder.Create();
 
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+                .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+                .Build();
 
             SetupSkill();
         }
 
         public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.5, double FrequencyPenalty = 0.0f,
-    double PresencePenalty= 0.0f, double TopP = 1)
+    double PresencePenalty = 0.0f, double TopP = 1)
         {
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
@@ -71,7 +72,7 @@ Create a list of {{$number}} questions for my interview with a {{$input}}:
             ListFunctions.Add(FunctionName, InterviewFunction);
         }
 
-        public async Task<string> GenerateQuestion(int Number,string Profession)
+        public async Task<string> GenerateQuestion(int Number, string Profession)
         {
             string Result = string.Empty;
             if (IsProcessing) return Result;

@@ -28,18 +28,18 @@ namespace SemanticKernelDemo.Services
 
         public WriterHelperService()
         {
-            kernel = KernelBuilder.Create();
-
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+                .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+                .Build();
 
             SetupSkill();
         }
 
         public void SetupSkill(int MaxTokens = 3000, double Temperature = 0.3, double FrequencyPenalty = 0.0f,
-    double PresencePenalty= 0.0f, double TopP = 1)
+    double PresencePenalty = 0.0f, double TopP = 1)
         {
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
@@ -77,7 +77,7 @@ Write an essay from outline above:
 
 """;
 
-            
+
 
             var promptTemplate2 = new PromptTemplate(
     skPrompt2,                        // Prompt template defined in natural language

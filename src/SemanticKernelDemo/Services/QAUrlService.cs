@@ -9,6 +9,7 @@ using System.Threading;
 using CommunityToolkit.Maui.Alerts;
 
 using SemanticKernelDemo.Helpers;
+using Microsoft.SemanticKernel.SkillDefinition;
 
 namespace SemanticKernelDemo.Services
 {
@@ -27,16 +28,22 @@ namespace SemanticKernelDemo.Services
         public int ContentCount { get; internal set; } = 0;
         public QAUrlService()
         {
-            kernel = KernelBuilder.Create();
+            try
+            {
+                // Configure AI backend used by the kernel
+                var (model, apiKey, orgId) = AppConstants.GetSettings();
+                kernel = new KernelBuilder()
+    .WithOpenAITextEmbeddingGenerationService(modelId: "text-embedding-ada-002", apiKey: apiKey, orgId: orgId, serviceId: "embedding")
+    .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+    .Build();
+                kernel.UseMemory(new VolatileMemoryStore());
+                SetupSkill();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
 
-            // Configure AI backend used by the kernel
-            var (model, apiKey, orgId) = AppConstants.GetSettings();
-            kernel.Config.AddOpenAITextEmbeddingGenerationService("embedding", "text-embedding-ada-002", apiKey, orgId);
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
-           
-
-            kernel.UseMemory(new VolatileMemoryStore());
-            SetupSkill();
         }
 
         public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.2, double TopP = 0.5)
@@ -88,23 +95,24 @@ Answer:
                 IsProcessing = true;
 
                 var results = await kernel.Memory.SearchAsync(COLLECTION, question, limit: 2).ToListAsync();
-               
+
                 var context = new ContextVariables();
                 var ctx = results.Any()
                         ? string.Join("\n", results.Select(r => r.Metadata.Text))
                         : "No context found for this question.";
                 context.Set("context", ctx);
                 context.Set("input", question);
-
+                //var fun = ListFunctions[FunctionName];
+                //var result = await fun.InvokeAsync(new SKContext(context));
                 var result = await kernel.RunAsync(context, ListFunctions[FunctionName]);
                 if (result.ErrorOccurred) throw new Exception(result.LastErrorDescription);
                 Result = result.Result;
-                
+
             }
             catch (Exception ex)
             {
                 CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-               
+
                 string text = ex.ToString();
                 ToastDuration duration = ToastDuration.Short;
                 double fontSize = 14;
@@ -122,7 +130,7 @@ Answer:
 
         }
 
-        
+
 
         public async Task AddPageUrl(HttpClient client, string url, string contentSelector)
         {
@@ -144,15 +152,15 @@ Answer:
         {
             ContentCount++;
             var url = $"doc-{title}-page-{ContentCount}";
-           
+
             await kernel.Memory.SaveInformationAsync(COLLECTION, content, url, title);
-            
+
         }
 
         public async Task Reset()
         {
             if (ContentCount <= 0) return;
-            foreach(var url in Ids)
+            foreach (var url in Ids)
             {
                 await kernel.Memory.RemoveAsync(COLLECTION, url);
             }

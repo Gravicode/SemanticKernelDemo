@@ -27,18 +27,18 @@ namespace SemanticKernelDemo.Services
 
         public IdeaGeneratorService()
         {
-            kernel = KernelBuilder.Create();
-
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+    .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+    .Build();
 
             SetupSkill();
         }
 
         public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.6, double TopP = 1, double FrequencyPenalty = 1.0f,
-   double PresencePenalty= 1.0f)
+   double PresencePenalty = 1.0f)
         {
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;

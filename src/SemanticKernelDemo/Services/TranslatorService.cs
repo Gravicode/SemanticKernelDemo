@@ -10,8 +10,10 @@ using Microsoft.SemanticKernel.Orchestration;
 
 using SemanticKernelDemo.Helpers;
 
-namespace SemanticKernelDemo.Services {
-    public class TranslatorService {
+namespace SemanticKernelDemo.Services
+{
+    public class TranslatorService
+    {
         public string SkillName { get; set; } = "TranslatorSkill";
         public string FunctionName { set; get; } = "Translator";
         int MaxTokens { set; get; }
@@ -23,19 +25,21 @@ namespace SemanticKernelDemo.Services {
 
         IKernel kernel { set; get; }
 
-        public TranslatorService() {
-            kernel = KernelBuilder.Create();
-
+        public TranslatorService()
+        {
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+                .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+                .Build();
 
             SetupSkill();
         }
 
-        public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.0, double TopP = 1, double FrequencyPenalty = 0.0f, double PresencePenalty = 0.0f) {
-           
+        public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.0, double TopP = 1, double FrequencyPenalty = 0.0f, double PresencePenalty = 0.0f)
+        {
+
 
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
@@ -48,7 +52,8 @@ namespace SemanticKernelDemo.Services {
 
     """;
 
-            var promptConfig = new PromptTemplateConfig {
+            var promptConfig = new PromptTemplateConfig
+            {
                 Completion =
     {
         MaxTokens = this.MaxTokens,
@@ -71,11 +76,13 @@ namespace SemanticKernelDemo.Services {
             ListFunctions.Add(FunctionName, TranslatorFunction);
         }
 
-        public async Task<string> Translate(string ToLang, string Content) {
+        public async Task<string> Translate(string ToLang, string Content)
+        {
             string Result = string.Empty;
             if (IsProcessing) return Result;
 
-            try {
+            try
+            {
                 TokenHelper.CheckMaxToken(this.MaxTokens, Content);
                 IsProcessing = true;
                 var context = new ContextVariables();
@@ -86,11 +93,13 @@ namespace SemanticKernelDemo.Services {
                 Console.WriteLine(Translator);
                 Result = Translator.Result.Trim();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
                 return ex.ToString();
             }
-            finally {
+            finally
+            {
                 IsProcessing = false;
             }
             return Result;

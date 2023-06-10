@@ -26,12 +26,13 @@ namespace SemanticKernelDemo.Services
 
         public MeetingNotesService()
         {
-            kernel = KernelBuilder.Create();
 
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+                .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+                .Build();
 
             SetupSkill();
         }
@@ -42,70 +43,70 @@ namespace SemanticKernelDemo.Services
             try
             {
 
-            
-            this.MaxTokens = MaxTokens;
-            this.Temperature = Temperature;
-            this.TopP = TopP;
 
-            string skPrompt = """
+                this.MaxTokens = MaxTokens;
+                this.Temperature = Temperature;
+                this.TopP = TopP;
+
+                string skPrompt = """
 {{$input}}
 
 Summarize the meeting notes above.
 """;
 
-            var promptConfig = new PromptTemplateConfig
-            {
-                Completion =
+                var promptConfig = new PromptTemplateConfig
+                {
+                    Completion =
     {
         MaxTokens = this.MaxTokens,
         Temperature = this.Temperature,
         TopP = this.TopP, PresencePenalty=PresencePenalty, FrequencyPenalty = FrequencyPenalty
     }
-            };
+                };
 
-            var promptTemplate = new PromptTemplate(
-    skPrompt,                        // Prompt template defined in natural language
-    promptConfig,                    // Prompt configuration
-    kernel                           // SK instance
-);
+                var promptTemplate = new PromptTemplate(
+        skPrompt,                        // Prompt template defined in natural language
+        promptConfig,                    // Prompt configuration
+        kernel                           // SK instance
+    );
 
 
-            var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
+                var functionConfig = new SemanticFunctionConfig(promptConfig, promptTemplate);
 
-            var MeetingNotesFunction = kernel.RegisterSemanticFunction(SkillName, FunctionNames[0], functionConfig);
-            ListFunctions.Add(FunctionNames[0], MeetingNotesFunction);
+                var MeetingNotesFunction = kernel.RegisterSemanticFunction(SkillName, FunctionNames[0], functionConfig);
+                ListFunctions.Add(FunctionNames[0], MeetingNotesFunction);
 
-            skPrompt = """
+                skPrompt = """
 {{$input}}
 
 identify key decisions in the transcript above.
 """;
-            var promptTemplate2 = new PromptTemplate(
-    skPrompt,                        // Prompt template defined in natural language
-    promptConfig,                    // Prompt configuration
-    kernel                           // SK instance
-);
+                var promptTemplate2 = new PromptTemplate(
+        skPrompt,                        // Prompt template defined in natural language
+        promptConfig,                    // Prompt configuration
+        kernel                           // SK instance
+    );
 
 
-            var functionConfig2 = new SemanticFunctionConfig(promptConfig, promptTemplate2);
-            var MeetingNotesFunction2 = kernel.RegisterSemanticFunction(SkillName, FunctionNames[1], functionConfig2);
-            ListFunctions.Add(FunctionNames[1], MeetingNotesFunction2);
+                var functionConfig2 = new SemanticFunctionConfig(promptConfig, promptTemplate2);
+                var MeetingNotesFunction2 = kernel.RegisterSemanticFunction(SkillName, FunctionNames[1], functionConfig2);
+                ListFunctions.Add(FunctionNames[1], MeetingNotesFunction2);
 
-            skPrompt = """
+                skPrompt = """
 {{$input}}
 
 What are the key action items in the transcript above.
 """;
-            var promptTemplate3 = new PromptTemplate(
-    skPrompt,                        // Prompt template defined in natural language
-    promptConfig,                    // Prompt configuration
-    kernel                           // SK instance
-);
+                var promptTemplate3 = new PromptTemplate(
+        skPrompt,                        // Prompt template defined in natural language
+        promptConfig,                    // Prompt configuration
+        kernel                           // SK instance
+    );
 
 
-            var functionConfig3 = new SemanticFunctionConfig(promptConfig, promptTemplate3);
-            var MeetingNotesFunction3 = kernel.RegisterSemanticFunction(SkillName, FunctionNames[2], functionConfig3);
-            ListFunctions.Add(FunctionNames[2], MeetingNotesFunction3);
+                var functionConfig3 = new SemanticFunctionConfig(promptConfig, promptTemplate3);
+                var MeetingNotesFunction3 = kernel.RegisterSemanticFunction(SkillName, FunctionNames[2], functionConfig3);
+                ListFunctions.Add(FunctionNames[2], MeetingNotesFunction3);
             }
             catch (Exception ex)
             {

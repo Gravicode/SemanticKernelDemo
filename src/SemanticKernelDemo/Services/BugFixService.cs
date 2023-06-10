@@ -21,18 +21,18 @@ namespace SemanticKernelDemo.Services
 
         public BugFixService()
         {
-            kernel = KernelBuilder.Create();
 
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
-
+            kernel = new KernelBuilder()
+    .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+    .Build();
             SetupSkill();
         }
 
         public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.0, double FrequencyPenalty = 0.0f,
-    double PresencePenalty= 0.0f, double TopP = 1)
+    double PresencePenalty = 0.0f, double TopP = 1)
         {
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
@@ -82,7 +82,7 @@ namespace SemanticKernelDemo.Services
             try
             {
                 TokenHelper.CheckMaxToken(this.MaxTokens, Code);
-                IsProcessing = true; 
+                IsProcessing = true;
                 var context = new ContextVariables();
                 context.Set("lang", Lang);
                 context.Set("input", Code);
@@ -93,7 +93,7 @@ namespace SemanticKernelDemo.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex); 
+                Console.WriteLine(ex);
                 return ex.ToString();
             }
             finally

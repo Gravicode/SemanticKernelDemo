@@ -2,15 +2,15 @@
 
 <h1>Settings</h1>
 <form>
-  <div class="form-group">
-    <label for="text1">OPEN AI KEY</label>
+    <div class="form-group">
+        <label for="text1">OPEN AI KEY</label>
         <input type="text" @bind="OpenAIKey" class="form-control" id="text1" placeholder="Enter Open AI Key">
-  </div>
+    </div>
     <div class="form-group">
         <label for="text2">ORG-ID</label>
-            <input type="text" @bind="OrgId" class="form-control" id="text2" placeholder="Enter ORG-ID">
+        <input type="text" @bind="OrgId" class="form-control" id="text2" placeholder="Enter ORG-ID">
     </div>
-    <button type="button" @onclick="Save" class="btn btn-primary">Save</button>
+    <button type="button" @onclick="Save" class="btn btn-primary mt-2">Save</button>
 </form>
 
 @code {

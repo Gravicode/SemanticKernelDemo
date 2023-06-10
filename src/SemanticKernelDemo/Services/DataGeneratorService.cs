@@ -26,18 +26,19 @@ namespace SemanticKernelDemo.Services
 
         public DataGeneratorService()
         {
-            kernel = KernelBuilder.Create();
 
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+                .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+                .Build();
 
             SetupSkill();
         }
 
         public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.8, double FrequencyPenalty = 0.0f,
-    double PresencePenalty= 0.0f, double TopP = 1)
+    double PresencePenalty = 0.0f, double TopP = 1)
         {
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
@@ -112,7 +113,7 @@ result:
             ListFunctions.Add(FunctionName, DataGeneratorFunction);
         }
 
-        public async Task<string> GenerateData(string input, int number=10)
+        public async Task<string> GenerateData(string input, int number = 10)
         {
             string Result = string.Empty;
             if (IsProcessing) return Result;

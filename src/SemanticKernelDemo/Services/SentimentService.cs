@@ -27,19 +27,19 @@ namespace SemanticKernelDemo.Services
 
         public SentimentService()
         {
-            kernel = KernelBuilder.Create();
-
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+       .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+       .Build();
 
             SetupSkill();
         }
 
-        public void SetupSkill(int MaxTokens = 120, double Temperature = 0f, double TopP = 1, double FrequencyPenalty = 0.0,double PresencePenalty = 0.0f)
+        public void SetupSkill(int MaxTokens = 120, double Temperature = 0f, double TopP = 1, double FrequencyPenalty = 0.0, double PresencePenalty = 0.0f)
         {
-           
+
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
             this.TopP = TopP;
@@ -82,29 +82,29 @@ Sentence sentiment ratings:
 
             try
             {
-                TokenHelper.CheckMaxToken(this.MaxTokens, string.Join(' ',inputs));
+                TokenHelper.CheckMaxToken(this.MaxTokens, string.Join(' ', inputs));
                 IsProcessing = true;
                 var count = 1;
                 var prompt = string.Empty;
-                foreach(var input in inputs)
+                foreach (var input in inputs)
                 {
                     prompt += $"{count++}. \"{input}\"\n";
                 }
                 var Sentiment = await kernel.RunAsync(prompt, ListFunctions[FunctionName]);
                 var splitted = Sentiment.Result.Split('\n');
                 count = 0;
-                foreach(var split in splitted)
+                foreach (var split in splitted)
                 {
                     if (split.Length > 0 && !string.IsNullOrEmpty(split))
-                        Result[count++] = split; 
+                        Result[count++] = split;
                 }
                 Console.WriteLine(Sentiment);
-                
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                
+
             }
             finally
             {

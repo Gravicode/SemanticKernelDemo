@@ -15,8 +15,8 @@ namespace SemanticKernelDemo.Services
     {
         public string SkillName { get; set; } = "SummarySkill";
         public string FunctionName { set; get; } = "Summary";
-        int MaxTokens { set; get; } 
-        double Temperature { set; get; } 
+        int MaxTokens { set; get; }
+        double Temperature { set; get; }
         double TopP { set; get; }
         public bool IsProcessing { get; set; } = false;
 
@@ -26,17 +26,17 @@ namespace SemanticKernelDemo.Services
 
         public SummaryService()
         {
-            kernel = KernelBuilder.Create();
-
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+       .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+       .Build();
 
             SetupSkill();
         }
 
-        public void SetupSkill(int MaxTokens=2000, double Temperature=0.2, double TopP=0.5)
+        public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.2, double TopP = 0.5)
         {
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
@@ -75,7 +75,7 @@ Summarize the content above.
         {
             string Result = string.Empty;
             if (IsProcessing) return Result;
-                    
+
             try
             {
                 TokenHelper.CheckMaxToken(this.MaxTokens, input);
@@ -83,7 +83,7 @@ Summarize the content above.
                 var summary = await kernel.RunAsync(input, ListFunctions[FunctionName]);
 
                 Console.WriteLine(summary);
-                Result =  summary.Result;
+                Result = summary.Result;
             }
             catch (Exception ex)
             {

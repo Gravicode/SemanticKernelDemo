@@ -32,16 +32,11 @@ namespace SemanticKernelDemo.Services
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            // Configure the three AI features: text embedding (using Ada), text completion (using DaVinci 3), image generation (DALL-E 2)
             kernel = new KernelBuilder()
-                .Configure(c =>
-                {
-                    c.AddOpenAITextCompletionService("davinci", "text-davinci-003", apiKey, orgId);
-                    c.AddOpenAIImageGenerationService("dallE", apiKey, orgId);
-                })
-                .Build();
+    .WithOpenAIImageGenerationService(apiKey: apiKey, orgId: orgId, serviceId: "dallE")
+    .WithOpenAITextCompletionService(modelId: "text-davinci-003", apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+    .Build();
 
-           
             SetupSkill();
         }
 
@@ -54,7 +49,7 @@ namespace SemanticKernelDemo.Services
 
             // Create a semantic function that generate a random image description.
             var skPrompt = "Describe the artistic image with one detailed sentence about {{$input}}. ";
-              
+
 
             var promptConfig = new PromptTemplateConfig
             {
@@ -86,16 +81,16 @@ namespace SemanticKernelDemo.Services
             {
                 // Get AI service instance used to generate images
                 var dallE = kernel.GetService<IImageGeneration>();
-                
+
 
                 IsProcessing = true;
                 //var ArtisticImageDesc = await kernel.RunAsync(input, ListFunctions[FunctionName]);
-               
-              
+
+
                 // Use DALL-E 2 to generate an image. OpenAI in this case returns a URL (though you can ask to return a base64 image)
                 var imageUrl = await dallE.GenerateImageAsync(input, 512, 512);
-                
-               Console.WriteLine(imageUrl);
+
+                Console.WriteLine(imageUrl);
                 Result = imageUrl;
             }
             catch (Exception ex)

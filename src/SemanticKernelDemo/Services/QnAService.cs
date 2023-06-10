@@ -25,20 +25,21 @@ namespace SemanticKernelDemo.Services
 
         IKernel kernel { set; get; }
         OpenAIChatHistory chat;
-        IChatCompletion chatGPT; 
+        IChatCompletion chatGPT;
         public bool IsConfigured { get; set; } = false;
         public QnAService()
         {
-            kernel = KernelBuilder.Create();
 
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAIChatCompletionService("gpt-3.5-turbo", apiKey, orgId:orgId);
+            kernel = new KernelBuilder()
+               .WithOpenAIChatCompletionService(modelId: "gpt-3.5-turbo", apiKey: apiKey, orgId: orgId, serviceId: "chat-gpt")
+               .Build();
             //SetupSkill();
         }
 
-        public void SetupSkill(string Context="")
+        public void SetupSkill(string Context = "")
         {
             // Get AI service instance used to manage the user chat
             chatGPT = kernel.GetService<IChatCompletion>();

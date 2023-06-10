@@ -33,8 +33,11 @@ namespace SemanticKernelDemo.Services
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
-            kernel.Config.AddOpenAIImageGenerationService("dallE", apiKey, orgId);
+            kernel = new KernelBuilder()
+   .WithOpenAIImageGenerationService(apiKey: apiKey, orgId: orgId, serviceId: "dallE")
+   .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+   .Build();
+
 
             SetupSkill();
         }
@@ -82,7 +85,7 @@ Product names:
             ListFunctions.Add(FunctionName, ProductNameLogoFunction);
         }
 
-        public async Task<List<ProductInfo>> GenerateNameAndLogo(string desc,string seedword, int numberOfNames=5)
+        public async Task<List<ProductInfo>> GenerateNameAndLogo(string desc, string seedword, int numberOfNames = 5)
         {
             var Result = new List<ProductInfo>();
             if (IsProcessing) return Result;
@@ -102,8 +105,9 @@ Product names:
                 Console.WriteLine(ProductNameLogo);
                 var res = ProductNameLogo.Result;
                 var names = res.Split(new char[] { ',' });
-             
-                foreach(var name in names ) {
+
+                foreach (var name in names)
+                {
                     var imageUrl = await dallE.GenerateImageAsync($"A 2d, symmetrical, flat logo for {desc} that is {seedword}. it's product name: {name}", 512, 512);
                     Result.Add(new ProductInfo() { ProductName = name.Trim(), ProductLogoUrl = imageUrl });
                 }
@@ -112,7 +116,7 @@ Product names:
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                
+
             }
             finally
             {

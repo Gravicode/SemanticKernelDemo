@@ -7,57 +7,57 @@
         <label for="text1">Enter Context or System Message</label>
         <textarea type="text" @bind="Context" rows="5" class="form-control" id="text1" placeholder="Enter Context Here" />
     </div>
-    
+
     <button type="button" @onclick="Reset" disabled="@service.IsProcessing" class="btn btn-success mt-2">Reset</button>
 </form>
 
-<div class="padding">
-    <div class="row container d-flex justify-content-center">
-        <div class="col-md-6">
-            <div class="card card-bordered">
-                <div class="card-header">
-                    <h4 class="card-title"><strong>Chat</strong></h4>
-                    <a class="btn btn-xs btn-secondary" href="" @onclick:preventDefault data-abc="true">Let's Chat App</a>
+<div class="row mt-2">
+    <div class="col-lg-12">
+        <div class="chatbody">
+            <div class="panel panel-primary">
+                <div class="panel-heading top-bar">
+                    <div class="col-md-12 col-xs-12">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-comment"></span> QnA Chat-Bot</h3>
+                    </div>
                 </div>
-
-
-                <div class="ps-container ps-theme-default ps-active-y" id="chat-content" style="overflow-y: scroll !important; height:400px !important;">
-                   
-                    @foreach(var item in Interactions)
+                <div class="panel-body msg_container_base">
+                    @foreach (var item in Interactions)
                     {
-                        <div class="media media-chat">
-                            <img class="avatar" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
-                            <div class="media-body">
-                                <p>@item.UserMessage</p>
-                                <p class="meta"><time datetime="2018">@item.CreatedDate.ToString("HH:mm")</time></p>
+                        <div class="row msg_container base_sent">
+                            <div class="col-md-10 col-xs-10">
+                                <div class="messages msg_sent">
+                                    <p>
+                                        @item.UserMessage
+                                    </p>
+                                    <time datetime="@item.CreatedDate.ToString("yyyy-MM-ddTHH:mm")">User • @item.CreatedDate.ToString("HH:mm")</time>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="media media-chat media-chat-reverse">
-                            <div class="media-body">
-                                <p>@item.AssistantMessage</p>
-                                <p class="meta"><time datetime="2018">@item.CreatedDate.ToString("HH:mm")</time></p>
+                        <div class="row msg_container base_receive">
+                            <div class="col-md-10 col-xs-10">
+                                <div class="messages msg_receive">
+                                    <p>@item.AssistantMessage</p>
+                                    <time datetime="@item.CreatedDate.ToString("yyyy-MM-ddTHH:mm")">Chat-Bot • @item.CreatedDate.ToString("HH:mm")</time>
+                                </div>
                             </div>
                         </div>
+
                     }
-                   
-                    
 
-                    <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 0px;"><div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps-scrollbar-y-rail" style="top: 0px; height: 0px; right: 2px;"><div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 2px;"></div></div>
                 </div>
-
-                <div class="publisher bt-1 border-light">
-                    <img class="avatar avatar-xs" src="https://img.icons8.com/color/36/000000/administrator-male.png" alt="...">
-                    <input class="publisher-input" type="text" @onkeydown="@Enter" @bind:event="oninput" @bind="Input" placeholder="Write something">
-                    <span class="publisher-btn file-group">
-                        <i class="fa fa-paperclip file-browser"></i>
-                        <input type="file">
-                    </span>
-                    <a class="publisher-btn" href="#" data-abc="true"><i class="fa fa-smile"></i></a>
-                    <a class="publisher-btn text-info" href="#" @onclick:preventDefault @onclick="Process" disabled="@service.IsProcessing" data-abc="true"><i class="fa fa-paper-plane"></i></a>
+                <div class="panel-footer">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" @onkeydown="@Enter" @bind:event="oninput" @bind="Input" placeholder="Write your message here..." aria-label="user message" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon2">
+                                <button class="btn btn-primary mr-2 ml-2" @onclick="Process" disabled="@service.IsProcessing" id="btn-chat">Send</button>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-
             </div>
+
         </div>
     </div>
 </div>

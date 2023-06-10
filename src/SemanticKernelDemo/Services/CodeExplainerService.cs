@@ -27,17 +27,18 @@ namespace SemanticKernelDemo.Services
 
         public CodeExplainerService()
         {
-            kernel = KernelBuilder.Create();
 
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+     .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+     .Build();
 
             SetupSkill();
         }
 
-        public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.0, double FrequencyPenalty=0, double PresencePenalty=0, double TopP = 0.5)
+        public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.0, double FrequencyPenalty = 0, double PresencePenalty = 0, double TopP = 0.5)
         {
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
@@ -85,7 +86,7 @@ Here's what the above class is doing, explained in a concise way:
                 IsProcessing = true;
                 var CodeExplainer = await kernel.RunAsync(code, ListFunctions[FunctionName]);
                 var Res = CodeExplainer.Result;
-                if(Res != null)
+                if (Res != null)
                 {
                     Res = $"1. {Res}";
                 }
@@ -94,7 +95,7 @@ Here's what the above class is doing, explained in a concise way:
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex); 
+                Console.WriteLine(ex);
                 return ex.ToString();
             }
             finally

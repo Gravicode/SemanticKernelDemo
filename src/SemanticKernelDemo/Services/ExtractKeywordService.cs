@@ -26,22 +26,22 @@ namespace SemanticKernelDemo.Services
 
         public ExtractKeywordService()
         {
-            kernel = KernelBuilder.Create();
-
             // Configure AI backend used by the kernel
             var (model, apiKey, orgId) = AppConstants.GetSettings();
 
-            kernel.Config.AddOpenAITextCompletionService("davinci", model, apiKey, orgId);
+            kernel = new KernelBuilder()
+                .WithOpenAITextCompletionService(modelId: model, apiKey: apiKey, orgId: orgId, serviceId: "davinci")
+                .Build();
 
             SetupSkill();
         }
 
-        public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.5, double FrequencyPenalty= 0.8f,
-    double PresencePenalty= 0.0f)
+        public void SetupSkill(int MaxTokens = 2000, double Temperature = 0.5, double FrequencyPenalty = 0.8f,
+    double PresencePenalty = 0.0f)
         {
             this.MaxTokens = MaxTokens;
             this.Temperature = Temperature;
-           
+
 
             string skPrompt = """
 Extract keywords from this text:
