@@ -32,12 +32,12 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-		<PackageCertificateThumbprint>41A221F3A352DD75F59BA15353A9D950DF774A47</PackageCertificateThumbprint>
+		<PackageCertificateThumbprint>E00932B55513AA65CCC7F32726F873B08331AF3D</PackageCertificateThumbprint>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
 		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
-		<AppInstallerUri>C:\Experiment\SemanticKernelDemo\published</AppInstallerUri>
+		<AppInstallerUri>C:\Experiment\SemanticKernelDemoPublished</AppInstallerUri>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
 

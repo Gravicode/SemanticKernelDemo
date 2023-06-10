@@ -1,4 +1,8 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+.img-logo{
+    width:80%;
+
+}
 .back-img {
     background-image: linear-gradient(to right, rgba(109, 179, 242, .6), rgba(109, 179, 242, .6)), url('images/checked.png');
     background-size: cover, contain;

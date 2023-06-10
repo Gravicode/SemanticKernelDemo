@@ -1,0 +1,50 @@
+﻿@page "/Edit-Text"
+@inject EditTextService service
+<h1>Edit Text Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Content to Edit</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Long Text Here" />
+    </div> 
+    <div class="form-group">
+        <label for="text3">Give Instruction</label>
+        <input type="text" @bind="Instruction"  class="form-control" id="text3" placeholder="Enter Instruction Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">EditText</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="EditText" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2">Clear</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string Input { get; set; } = @"Yuan worked for a Silicon Valley communication startup initially, and by 2012, he introduced Zoom to the world. Yuan did not want distance to be a significant factor in communication. He did not want lives to be based around a 12-hour train journey. Instead, he aimed for virtual communication techniques so that long-distance was no longer an issue. ";
+    public string Instruction { get; set; } = "change Yuan to John Ceena";
+    public string Result { get; set; }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    async Task Clear()
+    {
+        Instruction=string.Empty;
+        Input = string.Empty;
+        Result = string.Empty;
+    }
+    private async Task Process()
+    {
+        Result = await service.GenerateEditTextAsync(Input,Instruction);
+    }
+}
