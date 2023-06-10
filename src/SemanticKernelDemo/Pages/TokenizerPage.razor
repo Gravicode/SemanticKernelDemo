@@ -1,0 +1,57 @@
+﻿@page "/Tokenizer"
+@inject TokenizerService service
+<h1>Tokenizer Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Text</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Long Text Here" />
+    </div>
+    <div class="form-group">
+        <label for="text3">Token Count</label>
+        <input type="number" @bind="Count" class="form-control" id="text3" readonly placeholder="Token Count" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Tokens</label>
+        <textarea type="text" @bind="TokenStr" rows="5" class="form-control" id="text2" readonly placeholder="Tokens" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2">Clear</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string Input { get; set; } = @"A quantum computer is a computer that exploits quantum mechanical phenomena.";
+    public IEnumerable<int> Tokens { get; set; }
+    public string TokenStr { get; set; }
+    public int Count { get; set; }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(TokenStr))
+            await Clipboard.Default.SetTextAsync(TokenStr);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    async Task Clear()
+    {
+        Input = string.Empty;
+        Tokens = null;
+        Count = 0;
+    }
+    private async Task Process()
+    {
+        var Result = await service.GetTokens(Input);
+        if (Result.Tokens != null)
+        {
+            Tokens = Result.Tokens;
+            Count = Result.Count;
+            TokenStr = string.Join(",", Tokens);
+        }
+    }
+}

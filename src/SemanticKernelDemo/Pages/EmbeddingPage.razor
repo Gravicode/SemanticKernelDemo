@@ -1,0 +1,46 @@
+﻿@page "/Embedding"
+@inject EmbeddingService service
+<h1>Embedding Skill</h1>
+<form>
+    <div class="form-group">
+        <label for="text1">Enter Text</label>
+        <textarea type="text" @bind="Input" rows="5" class="form-control" id="text1" placeholder="Enter Long Text Here" />
+    </div>
+    <div class="form-group">
+        <label for="text2">Embedding</label>
+        <textarea type="text" @bind="Result" rows="5" class="form-control" id="text2" readonly placeholder="Embedding" />
+    </div>
+    <button type="button" @onclick="Process" disabled="@service.IsProcessing" class="btn btn-primary mt-2">Process</button>
+    <button type="button" @onclick="CopyClipboard" disabled="@service.IsProcessing" class="btn btn-success mt-2">Copy</button>
+    <button type="button" @onclick="Clear" disabled="@service.IsProcessing" class="btn btn-info mt-2">Clear</button>
+</form>
+
+@if (service.IsProcessing)
+{
+    <div class="spinner-border mt-2" role="status">
+    </div>
+}
+@code {
+    public string Input { get; set; } = @"The quick brown fox jumped over the lazy dog.";
+    public string Result { get; set; }
+    async Task CopyClipboard()
+    {
+        if (!string.IsNullOrEmpty(Result))
+            await Clipboard.Default.SetTextAsync(Result);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    async Task Clear()
+    {
+        Input = string.Empty;
+        Result = string.Empty;
+    }
+    private async Task Process()
+    {
+        var embed = await service.GenerateEmbeddingAsync(Input);
+        if(embed!=null)
+            Result = string.Join(",",embed);
+    }
+}
